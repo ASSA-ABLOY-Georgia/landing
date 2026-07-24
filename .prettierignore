@@ -1,0 +1,19 @@
+# Build & deps
+dist/
+.astro/
+node_modules/
+pnpm-lock.yaml
+skills-lock.json
+
+# Project docs — must stay byte-exact (CONTENT.md is the verbatim copy source of truth).
+# Never let Prettier reformat these.
+PLAN.md
+UX-REPORT.md
+CONTENT.md
+implementation-prompt.md
+PROGRESS.md
+PHASE-CHECK.md
+DECISIONS.md
+
+# Static assets served as-is
+public/
