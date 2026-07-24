@@ -15,5 +15,10 @@ PROGRESS.md
 PHASE-CHECK.md
 DECISIONS.md
 
+# Design-token source of truth — the @theme block is a VERBATIM copy of PLAN §4
+# (uppercase hexes, aligned comments). Prettier would lowercase hexes and re-wrap,
+# breaking byte-for-byte fidelity with the plan. Keep it out of auto-format.
+src/styles/global.css
+
 # Static assets served as-is
 public/

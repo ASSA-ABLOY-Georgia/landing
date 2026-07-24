@@ -1,0 +1,188 @@
+---
+// TEMPORARY dev scratch page — renders every design token from PLAN §4.
+// Deleted in Phase 6 (PLAN §8). noindex so it never leaks into search.
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const colors = [
+  { name: "deep-blue", hex: "#0B1D47", dark: true },
+  { name: "deep-blue-active", hex: "#2E3F66", dark: true },
+  { name: "cyan", hex: "#09C3F1", dark: false },
+  { name: "cyan-pressed", hex: "#B9E1EF", dark: false },
+  { name: "tint-active", hex: "#DAF0F7", dark: false },
+  { name: "tint-pale", hex: "#F2FAFC", dark: false },
+  { name: "warm-gray", hex: "#F7F6F5", dark: false },
+  { name: "border", hex: "#C0C8DA", dark: false },
+  { name: "text-secondary", hex: "#474C57", dark: true },
+  { name: "soft", hex: "#707070", dark: true },
+  { name: "ink", hex: "#1A1A1A", dark: true },
+  { name: "error", hex: "#CF0000", dark: true },
+];
+
+// Type specimens — Georgian copy from CONTENT.md; sizes/weights per PLAN §3, §4.
+const typeScale = [
+  {
+    label: "H1 · --text-h1 · 36→58px · w400 · lh 1.1",
+    cls: "text-h1 font-normal leading-[1.1]",
+    sample: "ვქმნით უსაფრთხო და თავისუფალ წვდომას სამყაროში",
+  },
+  {
+    label: "H2 · --text-h2 · 30→46px · w400",
+    cls: "text-h2 font-normal leading-tight",
+    sample: "წვდომის გადაწყვეტილებების მსოფლიო ლიდერი",
+  },
+  {
+    label: "H3 · --text-h3 · 24→30px · w500",
+    cls: "text-h3 font-medium leading-snug",
+    sample: "ჩვენი გადაწყვეტილებები",
+  },
+  {
+    label: "Card title · --text-card-title · 19→22px · w500",
+    cls: "text-card-title font-medium",
+    sample: "მექანიკური საკეტები",
+  },
+  {
+    label: "Intro · --text-intro · 16→19px · w400 · lh 1.55",
+    cls: "text-intro font-normal leading-[1.55]",
+    // Verbatim from CONTENT.md (Home hero subtitle) — byte-for-byte, no truncation.
+    sample:
+      "ASSA ABLOY არის წვდომის გადაწყვეტილებების მსოფლიო ლიდერი. ჩვენ ვქმნით ინოვაციურ მექანიკურ და ციფრულ სისტემებს, რომლებიც უზრუნველყოფს უსაფრთხო, მარტივ და ეფექტურ წვდომას საცხოვრებელ, კომერციულ და სამრეწველო ობიექტებზე.",
+  },
+  {
+    label: "Body · base · w400",
+    cls: "text-base font-normal",
+    sample:
+      "ყოველდღიურად მილიარდობით ადამიანი იყენებს ASSA ABLOY-ის ტექნოლოგიებს — ავტომატურ კარებს, სასტუმროს საკეტებს, წვდომის კონტროლის სისტემებსა და ციფრულ იდენტიფიკაციას.",
+  },
+];
+
+const shadows = [
+  { name: "shadow-elevation-s", cls: "shadow-elevation-s" },
+  { name: "shadow-elevation-m", cls: "shadow-elevation-m" },
+  { name: "shadow-elevation-1", cls: "shadow-elevation-1" },
+];
+
+const spacing = [4, 8, 12, 16, 24, 40, 80];
+---
+
+<BaseLayout
+  title="Styleguide (dev) — ASSA ABLOY Georgia"
+  description="Temporary token reference — colors, fluid type scale, radii, shadows, spacing."
+  noindex={true}
+>
+  <div class="mx-auto max-w-[1248px] px-6 py-16">
+    <p class="mb-2 text-[13px] font-medium uppercase tracking-[0.06em] text-text-secondary">
+      Phase 1 · dev scratch (deleted in Phase 6)
+    </p>
+
+    <!-- The single page <h1> doubles as the H1 type specimen for verification. -->
+    <h1 id="sg-h1" class="text-h1 font-normal leading-[1.1] text-deep-blue">
+      ვქმნით უსაფრთხო და თავისუფალ წვდომას სამყაროში
+    </h1>
+
+    <!-- ===== Type scale ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Type scale (fluid 360→1440)</h2>
+      <div class="mt-8 flex flex-col gap-10">
+        {
+          typeScale.map((t) => (
+            <div class="border-t border-border pt-4">
+              <p class="mb-3 text-[13px] font-medium uppercase tracking-[0.06em] text-text-secondary">
+                {t.label}
+              </p>
+              <p class={`${t.cls} text-deep-blue`}>{t.sample}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ===== Eyebrow ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Eyebrow</h2>
+      <p class="mt-6 text-[13px] font-medium uppercase tracking-[0.06em] text-text-secondary">
+        ინოვაცია
+      </p>
+    </section>
+
+    <!-- ===== Colors ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Color tokens</h2>
+      <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {
+          colors.map((c) => (
+            <div
+              class="flex min-h-28 flex-col justify-end rounded-container p-4"
+              style={`background:${c.hex}`}
+            >
+              <span class={`text-sm font-medium ${c.dark ? "text-tint-pale" : "text-deep-blue"}`}>
+                {c.name}
+              </span>
+              <span class={`text-[13px] ${c.dark ? "text-cyan-pressed" : "text-text-secondary"}`}>
+                {c.hex}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-4 text-[13px] text-text-secondary">
+        Cyan is rationed — never text on light, never a content-panel background (PLAN §4).
+      </p>
+    </section>
+
+    <!-- ===== Radii ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Radii</h2>
+      <div class="mt-8 flex flex-wrap gap-8">
+        <div class="flex flex-col items-center gap-2">
+          <div class="h-24 w-24 rounded-element bg-warm-gray shadow-elevation-s"></div>
+          <span class="text-[13px] text-text-secondary">rounded-element · 4px</span>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          <div class="h-24 w-24 rounded-container bg-warm-gray shadow-elevation-s"></div>
+          <span class="text-[13px] text-text-secondary">rounded-container · 8px</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Shadows ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Elevation</h2>
+      <div class="mt-8 flex flex-wrap gap-10">
+        {
+          shadows.map((s) => (
+            <div class="flex flex-col items-center gap-3">
+              <div class={`h-24 w-40 rounded-container bg-white ${s.cls}`} />
+              <span class="text-[13px] text-text-secondary">{s.name}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ===== Spacing ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Spacing scale (4·8·12·16·24·40·80)</h2>
+      <div class="mt-8 flex flex-col gap-3">
+        {
+          spacing.map((n) => (
+            <div class="flex items-center gap-4">
+              <span class="w-12 shrink-0 text-right text-[13px] text-text-secondary">{n}px</span>
+              <div class="h-4 rounded-element bg-cyan" style={`width:${n}px`} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ===== Focus-ring sanity (light + on-dark) ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Focus targets (Tab to check ring)</h2>
+      <div class="mt-8 flex flex-wrap items-center gap-6">
+        <a href="#sg-h1" class="rounded-element text-deep-blue underline"> link on light </a>
+        <span class="on-dark rounded-container bg-deep-blue p-4">
+          <a href="#sg-h1" class="rounded-element text-tint-pale underline"> link on navy </a>
+        </span>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,111 @@
+---
+import { Font } from "astro:assets";
+import "../styles/global.css";
+
+interface Props {
+  /** Page <title> — unique per page (PLAN §7 SEO). */
+  title: string;
+  /** Meta description — unique per page. */
+  description: string;
+  /** Absolute or root-relative OG image URL. Resolved against `site`. */
+  ogImage?: string;
+  /** Marks the page noindex (e.g. /contact/thanks, /404) — PLAN §7. */
+  noindex?: boolean;
+}
+
+const { title, description, ogImage = "/og-image.png", noindex = false } = Astro.props;
+
+// Astro.site is set in astro.config.mjs; both resolve to absolute URLs.
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
+---
+
+<!doctype html>
+<html lang="ka">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Add the `.js` root class as early as possible so progressive-enhancement
+         reveal styles (Phase 5) only apply when JS is available — no FOUC. -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ka_GE" />
+    <meta property="og:site_name" content="ASSA ABLOY Georgia" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- Noto Sans Georgian (variable), preloaded (PLAN §3). Injects the @font-face
+         rules + the --font-georgian variable consumed by --font-sans. -->
+    <Font cssVariable="--font-georgian" preload />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">გამოტოვეთ და გადადით მთავარ შინაარსზე</a>
+
+    <!-- Phase 3 replaces this placeholder with <Header /> (cyan strip + navy nav). -->
+    <header>
+      <p class="header-placeholder">ASSA ABLOY Georgia</p>
+    </header>
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <!-- Phase 3 replaces this placeholder with <Footer /> (destination footer). -->
+    <footer>
+      <p class="footer-placeholder">© 2026 ASSA ABLOY Georgia</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  /* Skip-link — first focusable element; hidden off-screen until focused.
+     No transition = no motion (respects reduced-motion by construction). */
+  .skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    background: var(--color-deep-blue);
+    color: var(--color-tint-pale);
+    border-radius: var(--radius-element);
+    font-weight: 500;
+    text-decoration: none;
+    transform: translateY(-150%);
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    /* Focus ring on a navy surface uses the on-dark color (PLAN §4). */
+    outline: 2px solid var(--color-tint-pale);
+    outline-offset: 2px;
+  }
+
+  /* Phase-1 landmark placeholders — replaced by real components in Phase 3. */
+  .header-placeholder,
+  .footer-placeholder {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+  }
+</style>
