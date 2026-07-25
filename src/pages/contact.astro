@@ -1,0 +1,144 @@
+---
+/**
+ * Contact (`/contact`) — PLAN §7 ("Contact"): white single-column hero, then two
+ * columns — (a) the info card with `tel:`/`mailto:` links and small icons,
+ * (b) the inline Web3Forms form.
+ *
+ * The inline form is a deliberate divergence from the live site, which links out
+ * to an external inquiry form (UX-REPORT §2.5) — sanctioned by PLAN §7.
+ *
+ * Copy is byte-for-byte from CONTENT.md → Contact (hero intro, the two info-card
+ * labels, and the placeholder phone/email from CONTENT.md → Global). The two
+ * column headings are DERIVED (`ui.contactInfoHeading` / `ui.contactFormHeading`):
+ * CONTENT.md gives the fields and labels but no heading for either column, and
+ * PLAN §4.5 requires a real h2 outline. Both are PLAN §9 client-review items.
+ */
+import ContactForm from "../components/ContactForm.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { contact, ui } from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+/** CONTENT.md → Contact → "Hero intro". A literal, so Prettier cannot reflow it. */
+const heroIntro =
+  "გაქვთ შეკითხვა ან გჭირდებათ კონსულტაცია? მოგვწერეთ ან დაგვირეკეთ — ჩვენი გუნდი მზადაა დაგეხმაროთ.";
+---
+
+<BaseLayout
+  title="კონტაქტი — ASSA ABLOY Georgia"
+  description="დაგვიკავშირდით: კონსულტაცია და ტექნიკური მხარდაჭერა ASSA ABLOY-ის გადაწყვეტილებებზე საქართველოში."
+>
+  <PageHero title="კონტაქტი" single>
+    <p>{heroIntro}</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container-boxed contact-grid">
+      {/* (a) info card */}
+      <div>
+        <div class="contact-col-heading">
+          <SectionHeading title={ui.contactInfoHeading} as="h2" />
+        </div>
+        <div class="info-panel">
+          <dl class="info-panel__list">
+            <div class="info-panel__row">
+              <dt class="info-panel__term">ტელეფონი:</dt>
+              <dd class="info-panel__value">
+                <a class="info-panel__link" href={contact.phoneHref}>
+                  <Icon name="phone" size={16} />{contact.phone}
+                </a>
+              </dd>
+            </div>
+            <div class="info-panel__row">
+              <dt class="info-panel__term">ელ. ფოსტა:</dt>
+              <dd class="info-panel__value">
+                <a class="info-panel__link" href={contact.emailHref}>
+                  <Icon name="mail" size={16} />{contact.email}
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      {/* (b) inline form */}
+      <div>
+        <div class="contact-col-heading">
+          <SectionHeading title={ui.contactFormHeading} as="h2" />
+        </div>
+        <div class="contact-form-wrap">
+          <ContactForm />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-grid {
+    display: grid;
+    gap: 56px;
+  }
+
+  /* These two are COLUMN labels inside one band, not band headings. Left at
+     --text-h2 they render two 46px headings side by side (one of them wrapping) —
+     a shape the live site never produces; UX-REPORT §5 reserves 46px for the
+     single band heading. They stay <h2> for the outline (PLAN §4.5) and drop to
+     the H3 tier visually. The wrapper is what carries the override: the
+     SectionHeading root is authored in another component, so a class passed to it
+     gets no page scope id and an ancestor selector on it would never match
+     (DECISIONS D3.2). */
+  .contact-col-heading :global(.section-heading__title) {
+    font-size: var(--text-h3);
+  }
+
+  /* The "info card" shell — the Card component takes a linked/slotted title, so
+     the contacts get the same warm-gray r-8 ground as a plain panel. */
+  .info-panel {
+    margin-top: 40px;
+    padding: 24px;
+    background-color: var(--color-warm-gray);
+    border-radius: var(--radius-container);
+  }
+  .info-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+  }
+  .info-panel__term {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-deep-blue);
+  }
+  .info-panel__value {
+    margin: 4px 0 0;
+  }
+  .info-panel__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 16px;
+    color: var(--color-deep-blue);
+    text-decoration: none;
+  }
+  .info-panel__link:hover {
+    text-decoration: underline;
+  }
+
+  .contact-form-wrap {
+    margin-top: 40px;
+  }
+
+  @media (min-width: 1024px) {
+    .contact-grid {
+      /* The form is the wider column; the info card stays a compact aside. */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 80px;
+      align-items: start;
+    }
+  }
+</style>

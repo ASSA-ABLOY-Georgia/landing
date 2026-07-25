@@ -30,7 +30,8 @@ export type IconName =
   | "menu"
   | "close"
   | "check"
-  | "chevron-right";
+  | "chevron-right"
+  | "alert";
 
 interface Props {
   name: IconName;
@@ -116,6 +117,12 @@ const paths: Record<IconName, string> = {
     "M5.6 4 12 10.4 18.4 4 20 5.6 13.6 12 20 18.4 18.4 20 12 13.6 5.6 20 4 18.4 10.4 12 4 5.6z",
   check: "M9.6 16.4 4.9 11.7l1.7-1.7 3 3 7.8-7.8 1.7 1.7z",
   "chevron-right": "M9.1 4.6 16.5 12l-7.4 7.4-1.7-1.7L13.1 12 7.4 6.3z",
+  // Form-error glyph (PLAN §4.5: errors are never colour alone). Solid disc with
+  // the exclamation punched out by the inherited evenodd rule.
+  alert:
+    "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" +
+    "M10.9 6.4h2.2v7.4h-2.2z" +
+    "M10.9 15.4h2.2v2.2h-2.2z",
 };
 ---
 

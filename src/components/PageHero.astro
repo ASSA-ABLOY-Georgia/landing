@@ -1,0 +1,81 @@
+---
+/**
+ * PageHero — the WHITE two-column hero every page opens with (PLAN §2, §7;
+ * UX-REPORT §1.4: "left-aligned, asymmetric two-column heroes … never centered,
+ * never on a navy panel").
+ *
+ *   left  — H1 at --text-h1 / weight 400 / deep-blue
+ *   right — intro paragraph + optional CTA (the default slot)
+ *
+ * `single` collapses it to one column for Contact, whose hero PLAN §7 specifies
+ * as "WHITE hero, single column (H1 + intro)". The slot is styled here so pages
+ * can pass plain <p>/<Button> markup: paragraphs get --text-intro, a button gets
+ * its 24px of air.
+ */
+interface Props {
+  title: string;
+  /** Single-column arrangement — H1 and intro stacked (Contact, PLAN §7). */
+  single?: boolean;
+  class?: string;
+}
+
+const { title, single = false, class: className } = Astro.props;
+---
+
+<section class:list={["page-hero", "section", single && "page-hero--single", className]}>
+  <div class="container-boxed page-hero__inner">
+    <h1 class="page-hero__title">{title}</h1>
+    <div class="page-hero__aside"><slot /></div>
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    background-color: #ffffff;
+  }
+
+  /* Mobile: one column. The 50/50 split arrives with the two-column viewport. */
+  .page-hero__inner {
+    display: grid;
+    gap: 32px;
+  }
+
+  .page-hero__title {
+    margin: 0;
+    font-size: var(--text-h1);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--color-deep-blue);
+  }
+
+  .page-hero__aside {
+    /* Intro column measure — the right half is never a full-width text block. */
+    max-width: 60ch;
+  }
+  .page-hero__aside :global(p) {
+    margin: 0;
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+  .page-hero__aside :global(p + p) {
+    margin-top: 16px;
+  }
+  /* Any CTA passed into the slot sits 24px under the intro. */
+  .page-hero__aside :global(.btn) {
+    margin-top: 24px;
+  }
+
+  @media (min-width: 1024px) {
+    .page-hero__inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    /* Contact's single-column hero keeps the prose measure instead of splitting. */
+    .page-hero--single .page-hero__inner {
+      grid-template-columns: minmax(0, 70ch);
+      gap: 24px;
+    }
+  }
+</style>

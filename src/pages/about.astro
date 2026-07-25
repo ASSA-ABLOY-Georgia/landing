@@ -1,0 +1,299 @@
+---
+/**
+ * About (`/about`) — the airy component hub of PLAN §7 ("About"):
+ * white two-column PageHero (no CTA) → intro → ჩვენი მისია → რას გთავაზობთ (list)
+ * → რატომ ჩვენ? (check-list) → მსოფლიო გამოცდილება → ღირებულებები (3 cards)
+ * → closing CTA band.
+ *
+ * Every Georgian string is byte-for-byte from CONTENT.md → About, which is
+ * [CLIENT — VERBATIM] for the entire page. The `**bold**` spans CONTENT.md marks
+ * become <strong>; the list items keep their trailing „;" exactly as written.
+ *
+ * Prose lives in the constants below, not inline in the markup: Prettier reflows
+ * long JSX text to the print width and had already split „64 000" across two
+ * source lines. String literals are immune, so the shipped text nodes are the
+ * CONTENT.md passages exactly.
+ *
+ * ⚠ Composition note: PLAN §7 sketches this page as alternating two-column
+ * text↔image FeaturedContent bands, but the client has supplied no photography
+ * (Phase 2 produced logo variants, the catalogue cover and the OG image only).
+ * The bands therefore lean on white/warm-gray grounds and the same asymmetric
+ * two-column shape with the media column absent — heading left, copy right
+ * (UX-REPORT §3.7 shape b). The grounds alternate strictly, which forces the lead
+ * band to be the tinted one: with seven bands, an alternating run is fixed by its
+ * first member, and ღირებულებები must land on white because its cards are
+ * themselves warm-gray. Photography is a PLAN §9 client item; the layout takes
+ * images without restructuring when it arrives.
+ */
+import Button from "../components/Button.astro";
+import Card from "../components/Card.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+/* CONTENT.md → About. `introLead`/`introBold`/`introRest` are the one paragraph
+   CONTENT.md marks with **bold**, split at the marker boundaries — concatenated
+   they are that line verbatim. */
+const copy = {
+  heroSubtitle: "უსაფრთხოებისა და წვდომის გადაწყვეტილებების ოფიციალური წარმომადგენელი საქართველოში",
+  introLead: "ჩვენ ვართ ",
+  introBold: "ASSA ABLOY-ის ოფიციალური წარმომადგენლობა საქართველოში",
+  introRest:
+    ", რომელიც მომხმარებლებს სთავაზობს მსოფლიო დონის უსაფრთხოების, წვდომის კონტროლისა და კარის სისტემების თანამედროვე გადაწყვეტილებებს.",
+  introSecond:
+    "როგორც მსოფლიოში წვდომის გადაწყვეტილებების ლიდერის ოფიციალური პარტნიორი, ჩვენი მიზანია ქართულ ბაზარზე ხელმისაწვდომი გავხადოთ ინოვაციური ტექნოლოგიები, მაღალი ხარისხის პროდუქტები და პროფესიონალური მომსახურება. ASSA ABLOY ყოველდღიურად მილიარდობით ადამიანს ეხმარება უსაფრთხოდ და კომფორტულად გადაადგილდეს სახლებში, ოფისებში, სასტუმროებში, სამედიცინო დაწესებულებებში, აეროპორტებსა და სხვა მნიშვნელოვან სივრცეებში.",
+  mission:
+    "ჩვენი მისიაა საქართველოში შევთავაზოთ მომხმარებლებს უსაფრთხოების ისეთი გადაწყვეტილებები, რომლებიც აერთიანებს ინოვაციას, საიმედოობასა და კომფორტს. ვქმნით გარემოს, სადაც ადამიანები, შენობები და ბიზნესები დაცულად და თავისუფლად ფუნქციონირებენ.",
+  portfolioLeadIn: "ჩვენი პორტფელი მოიცავს:",
+  portfolioClosing:
+    "ყველა პროდუქტი და გადაწყვეტილება შეესაბამება საერთაშორისო ხარისხისა და უსაფრთხოების სტანდარტებს.",
+  worldExperience:
+    "ASSA ABLOY 1994 წელს დაარსდა და დღეს ოპერირებს 70-ზე მეტ ქვეყანაში, ჰყავს დაახლოებით 64 000 თანამშრომელი და წარმოადგენს წვდომის გადაწყვეტილებების მსოფლიო ლიდერს. ბრენდის მრავალწლიანი გამოცდილება, ინოვაციური მიდგომა და საერთაშორისო სტანდარტები გვაძლევს შესაძლებლობას, ეს ხარისხი და სანდოობა ქართულ ბაზარზეც შევთავაზოთ ჩვენს პარტნიორებსა და მომხმარებლებს.",
+  valuesLeadIn: "ჩვენი საქმიანობა ეფუძნება სამ ძირითად პრინციპს:",
+  closing:
+    "ჩვენ გვჯერა, რომ უსაფრთხო გარემო წარმატებული ცხოვრებისა და ბიზნესის საფუძველია. სწორედ ამიტომ, ყოველდღიურად ვმუშაობთ იმისთვის, რომ საქართველოში ხელმისაწვდომი იყოს მსოფლიო კლასის წვდომისა და უსაფრთხოების გადაწყვეტილებები, რომლებიც იცავს იმას, რაც ყველაზე მნიშვნელოვანია.",
+};
+
+/* CONTENT.md → About → "რას გთავაზობთ" → List. */
+const portfolio = [
+  "მექანიკურ და ელექტრომექანიკურ საკეტებს;",
+  "Smart Lock და ციფრული წვდომის სისტემებს;",
+  "Access Control გადაწყვეტილებებს;",
+  "ავტომატურ კარის სისტემებს;",
+  "უსაფრთხოების კარებსა და ფურნიტურას;",
+  "ბიომეტრიულ და იდენტიფიკაციის სისტემებს;",
+  "პროფესიონალურ კონსულტაციას, პროექტირებასა და ტექნიკურ მხარდაჭერას.",
+];
+
+/* CONTENT.md → About → "რატომ ჩვენ?". */
+const reasons = [
+  "ASSA ABLOY-ის ოფიციალური წარმომადგენლობა საქართველოში;",
+  "საერთაშორისო სტანდარტების შესაბამისი პროდუქცია;",
+  "თანამედროვე და ინოვაციური ტექნოლოგიები;",
+  "პროფესიონალი კონსულტანტებისა და ტექნიკური გუნდის მხარდაჭერა;",
+  "ინდივიდუალურად მორგებული გადაწყვეტილებები ნებისმიერი მასშტაბის პროექტისთვის;",
+  "გაყიდვის შემდგომი მომსახურება და ტექნიკური მხარდაჭერა.",
+];
+
+/* CONTENT.md → About → "ჩვენი ღირებულებები (render as 3 cards)" — the bold term
+   is the card title, the text after the em dash is the body. */
+const values = [
+  { title: "ინოვაცია", body: "თანამედროვე ტექნოლოგიები უსაფრთხოებისთვის." },
+  { title: "სანდოობა", body: "ხარისხი, რომელსაც ენდობიან მთელ მსოფლიოში." },
+  {
+    title: "პარტნიორობა",
+    body: "გრძელვადიანი თანამშრომლობა მომხმარებლებთან და პარტნიორებთან.",
+  },
+];
+---
+
+<BaseLayout
+  title="ჩვენს შესახებ — ASSA ABLOY Georgia"
+  description="ASSA ABLOY-ის ოფიციალური წარმომადგენლობა საქართველოში: მისია, ღირებულებები და მსოფლიო გამოცდილება ადგილობრივი მხარდაჭერით."
+>
+  <PageHero title="ჩვენს შესახებ">
+    <p>{copy.heroSubtitle}</p>
+  </PageHero>
+
+  {/* Intro — two paragraphs, no heading (the lead of the page). */}
+  <section class="section section--warm">
+    <div class="container-boxed">
+      <div class="prose measure">
+        <p>{copy.introLead}<strong>{copy.introBold}</strong>{copy.introRest}</p>
+        <p>{copy.introSecond}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* მისია */}
+  <section class="section">
+    <div class="container-boxed band-split">
+      <SectionHeading title="ჩვენი მისია" />
+      <div class="prose">
+        <p>{copy.mission}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* რას გთავაზობთ */}
+  <section class="section section--warm">
+    <div class="container-boxed band-split">
+      <SectionHeading title="რას გთავაზობთ" />
+      <div class="prose">
+        <p>{copy.portfolioLeadIn}</p>
+        <ul class="marker-list" role="list">
+          {
+            portfolio.map((item) => (
+              <li>
+                <span class="marker-list__glyph">
+                  <Icon name="chevron-right" size={20} />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p>{copy.portfolioClosing}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* რატომ ჩვენ? — check-list */}
+  <section class="section">
+    <div class="container-boxed band-split">
+      <SectionHeading title="რატომ ჩვენ?" />
+      <div class="prose">
+        <ul class="marker-list marker-list--check" role="list">
+          {
+            reasons.map((reason) => (
+              <li>
+                <span class="marker-list__glyph">
+                  <Icon name="check" size={20} />
+                </span>
+                <span>{reason}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* მსოფლიო გამოცდილება — ადგილობრივი მხარდაჭერა */}
+  <section class="section section--warm">
+    <div class="container-boxed band-split">
+      <SectionHeading title="მსოფლიო გამოცდილება — ადგილობრივი მხარდაჭერა" />
+      <div class="prose">
+        <p>{copy.worldExperience}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* ღირებულებები — 3 cards on white (the cards carry the warm-gray) */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading title="ჩვენი ღირებულებები">
+        <p class="band-lead measure">{copy.valuesLeadIn}</p>
+      </SectionHeading>
+      <ul class="values-grid" role="list">
+        {
+          values.map((value) => (
+            <li>
+              <Card as="h3" title={value.title}>
+                {value.body}
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* Closing band */}
+  <section class="section section--warm">
+    <div class="container-boxed band-split">
+      <SectionHeading title="ერთად ვქმნით უფრო უსაფრთხო მომავალს" />
+      <div class="prose">
+        <p>{copy.closing}</p>
+        <Button href="/contact">დაგვიკავშირდით</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Two-column band: heading left, copy right — the FeaturedContent shape with
+     the media column absent (see the file header note). */
+  .band-split {
+    display: grid;
+    gap: 32px;
+  }
+
+  .prose {
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+  .prose > :global(p) {
+    margin: 0;
+  }
+  .prose > :global(p + p) {
+    margin-top: 24px;
+  }
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+  .prose :global(.btn) {
+    margin-top: 40px;
+  }
+
+  /* Chevron/check marker lists (UX-REPORT §2.4's chevron-prefixed pattern, which
+     does not specify cyan). The glyph is deep-blue, not a cyan accent: it is the
+     list's ONLY marker, and cyan measures 2.08:1 on white / 1.93:1 on warm-gray —
+     legible enough for a 32px card icon beside a title, not for a 20px marker
+     doing the list's work. Deep-blue is 16.4:1 / 15.2:1 and rations cyan tighter. */
+  .marker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .marker-list > li {
+    display: flex;
+    gap: 12px;
+  }
+  .marker-list__glyph {
+    display: inline-flex;
+    flex: none;
+    /* Optical alignment with the first line of item text. */
+    margin-top: 0.2em;
+    color: var(--color-deep-blue);
+  }
+  .marker-list + :global(p) {
+    margin-top: 24px;
+  }
+
+  .band-lead {
+    margin: 40px 0 0;
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+
+  .values-grid {
+    display: grid;
+    gap: 24px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The <li> keeps its default display: overriding it can cost the listitem role
+     in WebKit. The card fills the stretched grid row instead. */
+  .values-grid :global(.card) {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .values-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    /* 5/7, not 50/50: the heading column holds one to three lines while the copy
+       column runs long, and an even split left up to 391px of empty ground beside
+       a single-line heading (Reviewer B, N5). */
+    .band-split {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 40px;
+      align-items: start;
+    }
+    .values-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,190 @@
+---
+/**
+ * Products (`/products`) — PLAN §7 ("Products"): white two-column PageHero →
+ * category grid in the solutions-card pattern → catalogue section (warm-gray,
+ * per PLAN §6) → closing CTA band.
+ *
+ * Copy is byte-for-byte from CONTENT.md → Products; the six category cards reuse
+ * the [CLIENT — VERBATIM] solutions data ("Category grid: reuse the 6 solutions
+ * cards (titles + texts) from Home"), and so does the grid's heading
+ * „ჩვენი გადაწყვეტილებები" — CONTENT.md gives the grid no heading of its own and
+ * this is the client's own heading for the same six cards.
+ *
+ * The cards carry no href: the site has no per-category pages, and an unlinked
+ * Card deliberately stays inert rather than advertising a click that does
+ * nothing (DECISIONS D3.7).
+ *
+ * Catalogue (PLAN §6): cover image + size label + two buttons, nothing embedded,
+ * nothing auto-loading. The „~24 MB" label is the measured size of the optimized
+ * PDF (23.92 MiB — Phase 2 / DECISIONS D2.4).
+ */
+import catalogueCover from "../assets/catalogue-cover.jpg";
+import { Image } from "astro:assets";
+import Button from "../components/Button.astro";
+import Card from "../components/Card.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { solutions } from "../data/solutions";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const cataloguePDF = "/catalogue/assa-abloy-catalogue-2024.pdf";
+
+/* CONTENT.md → Products. Kept as string literals so Prettier's reflow can never
+   split the byte-exact passages across source lines. */
+const copy = {
+  heroIntro:
+    "გაეცანით ASSA ABLOY-ის პროდუქტების სრულ პორტფელს — მექანიკური საკეტებიდან ციფრული წვდომის სისტემებამდე. თითოეული პროდუქტი შეესაბამება საერთაშორისო ხარისხისა და უსაფრთხოების სტანდარტებს.",
+  catalogue:
+    "ჩამოტვირთეთ ან დაათვალიერეთ ASSA ABLOY-ის პროდუქტების სრული კატალოგი — დეტალური ინფორმაცია სერიების, სპეციფიკაციებისა და გამოყენების სფეროების შესახებ.",
+  consulting:
+    "დაგვიკავშირდით — ჩვენი გუნდი დაგეხმარებათ თქვენი პროექტისთვის ოპტიმალური გადაწყვეტილების შერჩევაში.",
+};
+---
+
+<BaseLayout
+  title="პროდუქტები — ASSA ABLOY Georgia"
+  description="საკეტები, ციფრული წვდომა, Access Control, ავტომატური და უსაფრთხოების კარები — სრული პორტფელი და 2024 წლის კატალოგი."
+>
+  <PageHero title="პროდუქტები">
+    <p>{copy.heroIntro}</p>
+  </PageHero>
+
+  {/* Category grid — the solutions-card pattern (UX-REPORT §2.6) */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading title="ჩვენი გადაწყვეტილებები" />
+      <ul class="category-grid" role="list">
+        {
+          solutions.map((solution) => (
+            <li>
+              <Card as="h3" title={solution.title} icon={solution.icon}>
+                {solution.body}
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* Catalogue — PLAN §6 */}
+  <section class="section section--warm">
+    <div class="container-boxed catalogue">
+      {
+        /* Decorative: the cover repeats the heading beside it, so an alt text
+          would only duplicate „პროდუქტების კატალოგი 2024" (PLAN §4.5). */
+      }
+      <div class="catalogue__cover">
+        <Image src={catalogueCover} alt="" width={420} densities={[1, 2]} />
+      </div>
+      <div class="catalogue__body">
+        <SectionHeading title="პროდუქტების კატალოგი 2024" />
+        <p class="catalogue__text">{copy.catalogue}</p>
+        <p class="catalogue__size">PDF · ~24 MB</p>
+        <div class="catalogue__actions">
+          {
+            /* `external` is the component's new-tab path: it swaps the → for the ⧉
+              glyph (UX-REPORT §3.3's signal for "this leaves what you are looking
+              at" — which a new tab is, even for a same-origin file), drops the
+              arrow slide, emits target="_blank" rel="noopener", and gives the glyph
+              „იხსნება ახალ ფანჯარაში" as its text alternative. */
+          }
+          <Button href={cataloguePDF} external>კატალოგის ნახვა</Button>
+          <Button variant="white" href={cataloguePDF} download>გადმოწერა</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Closing CTA band */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading title="გჭირდებათ კონსულტაცია?" />
+      <p class="band-body measure">{copy.consulting}</p>
+      <Button href="/contact">დაგვიკავშირდით</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .category-grid {
+    display: grid;
+    gap: 24px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The <li> keeps its default display: overriding it can cost the listitem role
+     in WebKit. The card fills the stretched grid row instead. */
+  .category-grid :global(.card) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Catalogue: cover left, copy right (stacked on phones). */
+  .catalogue {
+    display: grid;
+    gap: 40px;
+  }
+  .catalogue__cover :global(img) {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    border-radius: var(--radius-container);
+    box-shadow: var(--shadow-elevation-m);
+  }
+
+  .catalogue__text {
+    margin: 40px 0 0;
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+  /* Size label — the "PDF · ~24 MB" meta line (PLAN §6). */
+  .catalogue__size {
+    margin: 16px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--color-text-secondary);
+  }
+  .catalogue__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .band-body {
+    margin: 40px 0 0;
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+  .band-body + :global(.btn) {
+    margin-top: 40px;
+  }
+
+  @media (min-width: 640px) {
+    .category-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .catalogue__actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .category-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .catalogue {
+      grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+      gap: 80px;
+      align-items: start;
+    }
+  }
+</style>

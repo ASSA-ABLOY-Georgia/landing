@@ -14,9 +14,12 @@
  * only applies under the `.js` root class, so with JS disabled the panel is a
  * plain always-visible stacked nav.
  *
- * The navy bar's hide-on-scroll-down / reveal-on-scroll-up transform hook
- * (`data-header-hidden`) is styled here; inline script ② that drives it is a
- * Phase-5 deliverable (PLAN §8).
+ * The navy bar's hide/reveal transform hook (`data-header-hidden`) is styled
+ * here; inline script ② that drives it is a Phase-5 deliverable (PLAN §8). That
+ * script sets the hook for two reasons: scroll direction, and the
+ * **footer-proximity hold** — the bar is held hidden while the footer's pill nav
+ * is in view, so the two navs are never on screen together (PLAN §4, DECISIONS
+ * DR.2).
  */
 import { Image } from "astro:assets";
 import logoDeepBlue from "../assets/logo-deep-blue.png";
@@ -349,7 +352,8 @@ const pathname = Astro.url.pathname;
   }
 
   /* Reduced motion kills the hide/reveal outright (PLAN §4: "header stays
-     visible"), not just its transition — the Phase-5 script inherits this. */
+     visible"), not just its transition — the Phase-5 script inherits this,
+     footer-proximity hold included. */
   @media (prefers-reduced-motion: reduce) {
     :global(html.js) .site-header,
     .header__nav-link {

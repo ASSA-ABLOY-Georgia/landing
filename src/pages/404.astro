@@ -1,0 +1,26 @@
+---
+/**
+ * 404 — white, H1 + primary CTA back to Home (PLAN §7).
+ *
+ * H1 and body are byte-for-byte from CONTENT.md → 404; the <title> follows the
+ * „<page> — ASSA ABLOY Georgia" pattern of CONTENT.md's SEO table (no row exists
+ * for this page) and the description reuses the page's own body line.
+ *
+ * `noindex` because an error page has nothing to rank — it is not in PLAN §7's
+ * noindex list (which names only `thanks`), but indexing a 404 is never wanted.
+ */
+import Button from "../components/Button.astro";
+import PageHero from "../components/PageHero.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+/* CONTENT.md → 404. One constant for the body so the paragraph and the meta
+   description can never drift apart. */
+const body = "სამწუხაროდ, მოთხოვნილი გვერდი არ არსებობს ან გადატანილია.";
+---
+
+<BaseLayout title="გვერდი ვერ მოიძებნა — ASSA ABLOY Georgia" description={body} noindex>
+  <PageHero title="გვერდი ვერ მოიძებნა" single>
+    <p>{body}</p>
+    <Button href="/">მთავარ გვერდზე დაბრუნება</Button>
+  </PageHero>
+</BaseLayout>

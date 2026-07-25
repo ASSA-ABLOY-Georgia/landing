@@ -46,6 +46,11 @@ export const ui = {
   skipToContent: "გამოტოვეთ და გადადით მთავარ შინაარსზე",
   /** Text alternative for the ⧉ glyph — the only "leaves the site" signal. */
   opensInNewTab: "იხსნება ახალ ფანჯარაში",
+  /** Contact's two column headings. CONTENT.md gives the info-card labels and the
+   *  form fields but no heading for either column, and PLAN §4.5 requires a real
+   *  h2→h3 outline — so these two are derived (PLAN §9 client-review item). */
+  contactInfoHeading: "საკონტაქტო ინფორმაცია",
+  contactFormHeading: "მოგვწერეთ",
 };
 
 /**

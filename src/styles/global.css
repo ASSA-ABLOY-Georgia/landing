@@ -4,14 +4,14 @@
   /* Color (brandbook, verbatim) */
   --color-deep-blue: #0B1D47;        /* text, headings, nav bar, footer bg, logo */
   --color-deep-blue-active: #2E3F66; /* pressed navy actions, dividers on navy */
-  --color-cyan: #09C3F1;             /* RATIONED: buttons, header strip, progress rule,
+  --color-cyan: #09C3F1;             /* RATIONED: buttons, header strip,
                                         footer wordmark, icon accents. NEVER text on light,
                                         never large content panels (UX-REPORT §1.1) */
   --color-cyan-pressed: #B9E1EF;     /* button hover; meta text on navy */
   --color-tint-active: #DAF0F7;      /* card hover surface */
   --color-tint-pale: #F2FAFC;        /* light text on navy; palest wash; footer hairline */
   --color-warm-gray: #F7F6F5;        /* card ground (warm, not blue), white-button border */
-  --color-border: #C0C8DA;           /* input borders, progress track, rules */
+  --color-border: #C0C8DA;           /* input borders, rules */
   --color-text-secondary: #474C57;   /* eyebrows, dates, captions */
   --color-soft: #707070;
   --color-ink: #1A1A1A;              /* image overlays */
@@ -68,6 +68,42 @@
 }
 
 @layer components {
+  /* Standard content band — the 80px top / 80px bottom rhythm every band shares
+     (PLAN §4 "Vertical section rhythm = 80px top / 80px bottom, every standard
+     band"). One declaration so six pages cannot drift apart. */
+  .section {
+    padding-block: 80px;
+  }
+  /* Grounds: warm-gray for closing/catalogue bands, navy for the ONE sanctioned
+     navy content band (the stat band). Navy bands also carry `.on-dark` in the
+     markup so the focus ring flips to #F2FAFC. */
+  .section--warm {
+    background-color: var(--color-warm-gray);
+  }
+  .section--navy {
+    background-color: var(--color-deep-blue);
+  }
+
+  /* Long-form prose measure — PLAN §4 "prose measure ~1136px/70ch". */
+  .measure {
+    max-width: 70ch;
+  }
+
+  /* Visually hidden but still rendered — deliberately NOT display:none, so it
+     can host the form honeypot (PLAN §4.5: "visually hidden wrapper, not
+     display:none"; `aria-hidden` + `tabindex="-1"` do the a11y-tree removal). */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* Boxed content column — 1248px of content with 96px side margins at 1440
      (UX-REPORT §2.1); 40px on tablet, 24px on phones. */
   .container-boxed {

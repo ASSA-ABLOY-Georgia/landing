@@ -1,0 +1,211 @@
+---
+/**
+ * ContactForm — the inline Web3Forms form (PLAN §1, §4.5, §7).
+ *
+ * A plain HTML POST: **zero JavaScript**. Web3Forms takes the submission and its
+ * `redirect` field sends the browser to /contact/thanks, so success is announced
+ * to AT as an ordinary navigation (PLAN §7).
+ *
+ * Copy (labels, error messages, submit) comes from CONTENT.md → Contact,
+ * byte-for-byte. Field styling follows UX-REPORT §3.8 inverted for white grounds:
+ * white fill, 1px #C0C8DA, r-4, 16px text (prevents iOS zoom), 44px min height,
+ * labels 16px/600.
+ *
+ * Accessibility (PLAN §4.5):
+ * - every input has a visible <label for>; the „*" is part of the label copy and
+ *   `required` carries the state to AT;
+ * - `autocomplete="name|email|tel"`;
+ * - errors are #CF0000 text **plus an icon** (never colour alone), revealed by
+ *   `:user-invalid` (see the CSS below) — no JavaScript;
+ * - ⚠ DEVIATION from §4.5's "aria-invalid + aria-describedby", forced by the
+ *   zero-JS constraint (PLAN §1) and recorded in DECISIONS D4.8: both attributes
+ *   would have to be *state-dependent*, and CSS cannot change an attribute.
+ *   `aria-describedby` pointing at the error text is worse than nothing here —
+ *   accname-1.2 §4.3.1 skips a hidden node only when it is NOT directly
+ *   referenced, so a referenced-but-hidden message is announced permanently (the
+ *   email field would always claim both "required" AND "wrong format"). A static
+ *   `aria-invalid="false"` would likewise mask the browser's own validity state.
+ *   So AT gets the state from `required` + the browser's native
+ *   constraint-validation message on a blocked submit, and sighted users get the
+ *   red icon+text; nothing announces something untrue;
+ * - the honeypot sits in a visually-hidden wrapper (NOT display:none) that is
+ *   `aria-hidden`, and the input is `tabindex="-1"` — out of the a11y tree and
+ *   out of the tab order.
+ *
+ * ⚠ `access_key` is a placeholder until the client provides the destination
+ * inbox (PLAN §9). With a placeholder key the POST fails, so the redirect is not
+ * end-to-end testable yet (PLAN §8 Phase 6 notes the same).
+ */
+import Button from "./Button.astro";
+import Icon from "./Icon.astro";
+
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const WEB3FORMS_ACCESS_KEY = "REPLACE-WITH-WEB3FORMS-ACCESS-KEY";
+
+// Web3Forms needs an absolute redirect URL; `site` is set in astro.config.mjs.
+// Trailing slash included deliberately: the build emits contact/thanks/index.html,
+// so the slashless form would rely on a host 301 (Reviewer A, m4).
+const redirectURL = new URL("/contact/thanks/", Astro.site).href;
+
+// Email metadata only — never rendered on the page, so deliberately Latin.
+const emailSubject = "ASSA ABLOY Georgia — website contact form";
+
+/** CONTENT.md → Contact → "Error messages [DRAFT]". */
+const errors = {
+  required: "ეს ველი სავალდებულოა",
+  email: "გთხოვთ, მიუთითოთ სწორი ელ. ფოსტა",
+};
+---
+
+<form class="contact-form" action={WEB3FORMS_ENDPOINT} method="POST">
+  <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY} />
+  <input type="hidden" name="redirect" value={redirectURL} />
+  <input type="hidden" name="subject" value={emailSubject} />
+
+  <div class="field">
+    <label class="field__label" for="contact-name">სახელი *</label>
+    <input
+      class="field__input"
+      id="contact-name"
+      name="name"
+      type="text"
+      autocomplete="name"
+      required
+    />
+    <p class="field__error field__error--required" id="contact-name-required">
+      <Icon name="alert" size={16} />{errors.required}
+    </p>
+  </div>
+
+  <div class="field field--email">
+    <label class="field__label" for="contact-email">ელ. ფოსტა *</label>
+    {
+      /* placeholder=" " renders nothing but makes :placeholder-shown a reliable
+        "is empty" test, which is what tells the two email errors apart. */
+    }
+    <input
+      class="field__input"
+      id="contact-email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      placeholder=" "
+      required
+    />
+    <p class="field__error field__error--required" id="contact-email-required">
+      <Icon name="alert" size={16} />{errors.required}
+    </p>
+    <p class="field__error field__error--format" id="contact-email-format">
+      <Icon name="alert" size={16} />{errors.email}
+    </p>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="contact-phone">ტელეფონი</label>
+    <input class="field__input" id="contact-phone" name="phone" type="tel" autocomplete="tel" />
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="contact-message">შეტყობინება *</label>
+    <textarea
+      class="field__input field__input--textarea"
+      id="contact-message"
+      name="message"
+      rows="6"
+      required></textarea>
+    <p class="field__error field__error--required" id="contact-message-required">
+      <Icon name="alert" size={16} />{errors.required}
+    </p>
+  </div>
+
+  {
+    /* Honeypot — visually hidden (not display:none), removed from the a11y tree
+      and the tab order. Web3Forms discards any submission that fills it. */
+  }
+  <div class="visually-hidden" aria-hidden="true">
+    <label for="contact-botcheck">botcheck</label>
+    <input id="contact-botcheck" name="botcheck" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="contact-form__actions">
+    <Button type="submit" variant="primary">გაგზავნა</Button>
+  </div>
+</form>
+
+<style>
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field__label {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-deep-blue);
+  }
+
+  /* UX-REPORT §3.8 inverted for a white ground. 16px text keeps iOS from
+     zooming on focus; 44px is the PLAN §4.5 touch-target floor. */
+  .field__input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-deep-blue);
+    background-color: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-element);
+  }
+  .field__input--textarea {
+    min-height: 132px;
+    resize: vertical;
+  }
+
+  /* Error messages: #CF0000 text plus the alert glyph — never colour alone.
+     display:none keeps each one out of the render tree until its field actually
+     fails validation. The ids stay on the messages so a future JS enhancement
+     (or a server-rendered error state) can wire aria-describedby dynamically.
+
+     NOT the `hidden` attribute: Chrome's UA sheet declares
+     `[hidden] { display: none !important }`, which no author rule (not even an
+     inline style) can override — measured in the browser, the messages could
+     never appear. The only cost of plain display:none is that with CSS
+     unavailable all four messages render as static text; with no CSS there is
+     no error styling to speak of either way. */
+  .field__error {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--color-error);
+  }
+  .field__error :global(svg) {
+    flex: none;
+  }
+  .field:has(.field__input:user-invalid) .field__error--required {
+    display: flex;
+  }
+  /* Email only: empty → "required", filled but malformed → "wrong format". */
+  .field--email:has(.field__input:user-invalid:not(:placeholder-shown)) .field__error--required {
+    display: none;
+  }
+  .field--email:has(.field__input:user-invalid:not(:placeholder-shown)) .field__error--format {
+    display: flex;
+  }
+
+  .contact-form__actions {
+    display: flex;
+  }
+</style>

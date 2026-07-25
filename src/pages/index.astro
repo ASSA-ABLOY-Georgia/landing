@@ -1,17 +1,259 @@
 ---
+/**
+ * Home — the seven bands of PLAN §7 ("Home (`/`)"):
+ *   1 white two-column hero · 2 full-bleed cyan display band · 3 white intro
+ *   4 solutions grid (6 cards) · 5 navy stat band · 6 industry pills
+ *   7 warm-gray innovation closing band
+ *
+ * All Georgian copy is byte-for-byte from CONTENT.md → Home (the card, stat and
+ * pill lists come through src/data/*.ts). Prose lives in the `copy` constants
+ * below rather than inline in the markup: Prettier reflows long JSX text to the
+ * print width, which would break the byte-exact passages across source lines
+ * (and once split „64 000"-style numbers, see about.astro). String literals are
+ * left alone, so what ships is exactly what CONTENT.md says.
+ *
+ * Cyan appears here exactly where PLAN §4 rations it: the display band, the
+ * primary buttons, and the card/stat icon accents. Content bands are white or
+ * warm-gray with navy text; the stat band is the one sanctioned navy band.
+ */
+import Button from "../components/Button.astro";
+import Card from "../components/Card.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { industries } from "../data/industries";
+import { solutions } from "../data/solutions";
+import { stats } from "../data/stats";
+import BaseLayout from "../layouts/BaseLayout.astro";
 
+/** CONTENT.md → Home. Verbatim; the keys name the band they belong to. */
+const copy = {
+  heroIntro:
+    "ASSA ABLOY არის წვდომის გადაწყვეტილებების მსოფლიო ლიდერი. ჩვენ ვქმნით ინოვაციურ მექანიკურ და ციფრულ სისტემებს, რომლებიც უზრუნველყოფს უსაფრთხო, მარტივ და ეფექტურ წვდომას საცხოვრებელ, კომერციულ და სამრეწველო ობიექტებზე.",
+  intro:
+    "ყოველდღიურად მილიარდობით ადამიანი იყენებს ASSA ABLOY-ის ტექნოლოგიებს — ავტომატურ კარებს, სასტუმროს საკეტებს, წვდომის კონტროლის სისტემებსა და ციფრულ იდენტიფიკაციას. ჩვენი მიზანია შევქმნათ უფრო უსაფრთხო, დაცული და თავისუფალი გარემო ადამიანებისა და ორგანიზაციებისთვის.",
+  industriesLeadIn: "ჩვენი გადაწყვეტილებები გამოიყენება:",
+  innovation:
+    "ASSA ABLOY ავითარებს მობილურ წვდომას, ბიომეტრიას, ციფრულ იდენტობას, Cloud Access Management-სა და სხვა თანამედროვე ტექნოლოგიებს, რომლებიც უსაფრთხოებას უფრო მარტივსა და ინტელექტუალურს ხდის.",
+};
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<BaseLayout
+  title="ASSA ABLOY Georgia — წვდომის გადაწყვეტილებების მსოფლიო ლიდერი"
+  description="ASSA ABLOY-ის ოფიციალური წარმომადგენლობა საქართველოში — მექანიკური და ციფრული საკეტები, Access Control, ავტომატური და უსაფრთხოების კარები."
+>
+  {/* 1 — hero: white, two-column (UX-REPORT §1.4) */}
+  <PageHero title="ვქმნით უსაფრთხო და თავისუფალ წვდომას სამყაროში">
+    <p>{copy.heroIntro}</p>
+    <Button href="/products">ჩვენი პროდუქტები</Button>
+  </PageHero>
+
+  {
+    /* 2 — the cyan display band: our static stand-in for the live site's Scene7
+      hero video (UX-REPORT §8). One line of oversized deep-blue display type on
+      bright cyan, with white pill CTAs lower-left. The line is marketing display
+      type, not a section label, so it is a <p> and stays out of the outline. */
+  }
+  <section class="display-band">
+    <div class="container-boxed display-band__inner">
+      <p class="display-band__line">უსაფრთხო და ღია სამყარო</p>
+      <div class="display-band__ctas">
+        <Button variant="white" href="/contact">დაგვიკავშირდით</Button>
+        <Button variant="white" href="/about">ჩვენს შესახებ</Button>
+      </div>
+    </div>
+  </section>
+
+  {/* 3 — intro */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading eyebrow="ჩვენს შესახებ" title="წვდომის გადაწყვეტილებების მსოფლიო ლიდერი" />
+      <p class="band__body measure">{copy.intro}</p>
+      <Button variant="white" href="/about">ჩვენს შესახებ</Button>
+    </div>
+  </section>
+
+  {/* 4 — solutions: 6 warm-gray cards, 3×2, stretched-link → /products */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading title="ჩვენი გადაწყვეტილებები" />
+      <ul class="solutions-grid" role="list">
+        {
+          solutions.map((solution) => (
+            <li>
+              <Card as="h3" title={solution.title} href="/products" icon={solution.icon}>
+                {solution.body}
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* 5 — "რატომ ASSA ABLOY?": the ONE sanctioned navy content band (PLAN §7) */}
+  <section class="section section--navy on-dark">
+    <div class="container-boxed">
+      <SectionHeading title="რატომ ASSA ABLOY?" onDark />
+      <ul class="stats" role="list">
+        {
+          stats.map((stat) => (
+            <li class="stat">
+              <span class="stat__icon">
+                <Icon name={stat.icon} size={32} />
+              </span>
+              <p class="stat__text">{stat.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* 6 — industries: pale pills, deep-blue text */}
+  <section class="section">
+    <div class="container-boxed">
+      <SectionHeading title="ინდუსტრიები">
+        <p class="band__body band__body--lead measure">{copy.industriesLeadIn}</p>
+      </SectionHeading>
+      <ul class="pills" role="list">
+        {industries.map((industry) => <li class="pill">{industry}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* 7 — innovation closing band */}
+  <section class="section section--warm">
+    <div class="container-boxed">
+      <SectionHeading eyebrow="ინოვაცია" title="მომავლის უსაფრთხოება იწყება დღეს" />
+      <p class="band__body measure">{copy.innovation}</p>
+      <Button href="/contact">დაგვიკავშირდით</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Body copy under a SectionHeading — 40px of air, then the prose measure. */
+  .band__body {
+    margin: 40px 0 0;
+    font-size: var(--text-intro);
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+  .band__body + :global(.btn) {
+    margin-top: 40px;
+  }
+  /* The industries lead-in sits inside SectionHeading, above the pills. It is
+     flagged with its own class rather than an ancestor selector: Astro scopes
+     every compound, and `.section-heading` is authored in another component
+     (DECISIONS D3.2) — the ancestor form would silently never match. */
+  .band__body--lead {
+    margin-bottom: 0;
+  }
+
+  /* ── 2 — cyan display band (full-bleed, ~50vh) ───────────────────────────── */
+  .display-band {
+    background-color: var(--color-cyan);
+  }
+  .display-band__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    min-height: 50vh;
+    padding-block: 80px;
+  }
+  /* "One line of oversized deep-blue display type" (PLAN §7 band 2) — a tier
+     above the H1 (58px ceiling), so it gets its own clamp: 40→80px. */
+  .display-band__line {
+    max-width: 24ch;
+    margin: 0;
+    font-size: clamp(2.5rem, calc(1.6667rem + 3.7037vw), 5rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--color-deep-blue);
+  }
+  /* Pills stack full-width on phones (UX-REPORT §5), row from tablet up. */
+  .display-band__ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── 4 — solutions grid ──────────────────────────────────────────────────── */
+  .solutions-grid {
+    display: grid;
+    gap: 24px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The <li> keeps its default display: overriding it can cost the listitem role
+     in WebKit. The card fills the stretched grid row instead. */
+  .solutions-grid :global(.card) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── 5 — navy stat band ──────────────────────────────────────────────────── */
+  .stats {
+    display: grid;
+    gap: 40px 24px;
+    margin: 48px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stat__icon {
+    display: inline-flex;
+    /* Sanctioned cyan icon accent on navy (PLAN §4). */
+    color: var(--color-cyan);
+  }
+  .stat__text {
+    margin: 12px 0 0;
+    font-size: var(--text-card-title);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-tint-pale);
+  }
+
+  /* ── 6 — industry pills ──────────────────────────────────────────────────── */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pill {
+    padding: 12px 20px;
+    background-color: var(--color-tint-pale);
+    border-radius: var(--radius-element);
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-deep-blue);
+  }
+
+  @media (min-width: 640px) {
+    .display-band__ctas {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .solutions-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .solutions-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    /* 5 tiles: three then two, each keeping the same column width. */
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
