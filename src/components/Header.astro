@@ -1,6 +1,6 @@
 ---
 /**
- * Header — two-tier system (PLAN §7, UX-REPORT §3.1).
+ * Header — two-tier system.
  *
  * Tier 1: cyan utility strip — wordmark (52px) + tel/email links. Static: it
  *         scrolls away with the page (only the navy bar sticks).
@@ -8,18 +8,17 @@
  *         sticky at the top of the viewport.
  * Mobile (<768px): the two tiers merge into ONE cyan bar (☰ მენიუ · wordmark);
  *         the nav becomes a full-width navy panel with ~64px rows and the cyan
- *         utility links sit below it (UX-REPORT §5).
+ *         utility links sit below it.
  *
- * Inline script ① (mobile-nav toggle) is progressive enhancement: the collapse
- * only applies under the `.js` root class, so with JS disabled the panel is a
- * plain always-visible stacked nav.
+ * The mobile-nav toggle script is progressive enhancement: the collapse only
+ * applies under the `.js` root class, so with JS disabled the panel is a plain
+ * always-visible stacked nav.
  *
  * The navy bar's hide/reveal transform hook (`data-header-hidden`) is styled
- * here; inline script ② drives it from BaseLayout (it needs the footer's
- * sentinel as well as this header). It sets the hook for two reasons: scroll
- * direction, and the **footer-proximity hold** — the bar is held hidden while
- * the footer's pill nav is near the top of the viewport, so the two navs are
- * never on screen together (PLAN §4, DECISIONS DR.2).
+ * here but driven from BaseLayout, which needs the footer's sentinel as well as
+ * this header. It is set for two reasons: scroll direction, and the
+ * **footer-proximity hold** — the bar is held hidden while the footer's pill nav
+ * is near the top of the viewport, so the two navs are never on screen together.
  */
 import { Image } from "astro:assets";
 import logoDeepBlue from "../assets/logo-deep-blue.png";
@@ -53,16 +52,11 @@ const pathname = Astro.url.pathname;
 
       <a class="header__brand" href="/">
         {
-          /*
-          The brand mark renders at two sizes — 36px tall (231w) below 768px, 52px tall
-          (333w) from 768px up. (Below ~390px the flex row runs out of room and
-          `max-width:100%` squeezes it further — 207w at 360, 167w at 320 — so the 231px
-          hint is deliberately the conservative upper bound there.)
-          `densities` would emit viewport-blind 1x/2x descriptors,
-          so a DPR-2 phone downloaded the 666w desktop asset for a 231px box (measured:
-          17 KiB wasted, Lighthouse image-delivery). `widths` + `sizes` lets the browser
-          weigh viewport AND DPR, so mobile takes 462w and only desktop takes 666w.
-        */
+          /* The brand mark renders at 36px tall (231w) below 768px and 52px tall
+            (333w) above. `densities` would emit viewport-blind 1x/2x descriptors,
+            so a DPR-2 phone downloaded the 666w desktop asset for a 231px box.
+            `widths` + `sizes` lets the browser weigh viewport AND DPR, so mobile
+            takes 462w and only desktop takes 666w. */
         }
         <Image
           src={logoDeepBlue}
@@ -110,7 +104,7 @@ const pathname = Astro.url.pathname;
       </div>
     </nav>
 
-    <!-- Mobile only: the cyan utility links, below the nav (UX-REPORT §5). -->
+    <!-- Mobile only: the cyan utility links, below the nav. -->
     <div class="header__panel-utility">
       <div class="container-boxed">
         <ul class="header__utility header__utility--panel" role="list">
@@ -130,7 +124,7 @@ const pathname = Astro.url.pathname;
   </div>
 </header>
 
-{/* Inline script ① — mobile-nav toggle (PLAN §1, §4.5). */}
+{/* Mobile-nav toggle. */}
 <script is:inline>
   (function () {
     var header = document.getElementById("site-header");
@@ -172,11 +166,11 @@ const pathname = Astro.url.pathname;
      every mobile viewport. Desktop is always safe (the panel is the 72px navy bar)
      and gets its own sticky rule below.
      The desktop offset pulls the cyan strip out of the sticky area so it scrolls
-     away and only the navy bar sticks (UX-REPORT §3.1). */
+     away and only the navy bar sticks. */
   :global(html.js) .site-header {
     position: sticky;
     top: calc(-1 * var(--header-sticky-offset));
-    transition: transform 0.3s; /* the hide/reveal slide — inline script ② */
+    transition: transform 0.3s; /* the hide/reveal slide */
   }
   :global(html.js) .site-header[data-header-hidden="true"] {
     transform: translateY(-100%);
@@ -283,7 +277,7 @@ const pathname = Astro.url.pathname;
   .header__nav-link:hover {
     color: var(--color-cyan);
   }
-  /* Active page — subtle lighter-navy rounded highlight (UX-REPORT §3.1). */
+  /* Active page — subtle lighter-navy rounded highlight. */
   .header__nav-link[aria-current="page"] {
     background-color: var(--color-deep-blue-active);
     border-radius: var(--radius-element);
@@ -363,9 +357,9 @@ const pathname = Astro.url.pathname;
     }
   }
 
-  /* Reduced motion kills the hide/reveal outright (PLAN §4: "header stays
-     visible"), not just its transition — script ② short-circuits to "visible"
-     under the same query, footer-proximity hold included. */
+  /* Reduced motion kills the hide/reveal outright, not just its transition —
+     BaseLayout's script short-circuits to "visible" under the same query,
+     footer-proximity hold included. */
   @media (prefers-reduced-motion: reduce) {
     :global(html.js) .site-header,
     .header__nav-link {

@@ -1,0 +1,53 @@
+# Netlify build configuration.
+#
+# Pinned here rather than in the Netlify UI so the build is reproducible from the
+# repo alone. pnpm needs no configuration: Netlify detects pnpm-lock.yaml and
+# Corepack honours the `packageManager` field in package.json.
+#
+# No redirect rule for 404s — Astro emits dist/404.html and Netlify serves it for
+# unmatched paths automatically.
+
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  # package.json engines requires >=22.12.0; 24 matches local development.
+  NODE_VERSION = "24"
+
+# ── Cache-Control ────────────────────────────────────────────────────────────
+# The rules below are deliberately NON-OVERLAPPING, by file extension rather than
+# by directory. Netlify does not document which rule wins when two match the same
+# path, so nothing here depends on precedence — and they behave identically whether
+# or not `*` is taken to cross a `/`.
+
+# Vite content-hashes these (e.g. BaseLayout.Cf-ABytL.css) — the bytes cannot change
+# without the filename changing, so they are safe to pin forever.
+[[headers]]
+  for = "/_astro/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_astro/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ⚠ NOT immutable. Astro's Fonts API names these from a hash of the *source URL*, not
+# of the file contents (astro/dist/assets/fonts/infra/build-font-file-id-generator.js
+# hashes the resolved URL, and the resolver returns remote URLs verbatim). That URL is
+# `…/noto-sans-georgian:vf@latest/…woff2` — a mutable tag. A Fontsource release can
+# therefore change these bytes while reusing the exact same filename, and a year-long
+# immutable cache would strand returning visitors on a stale font (tofu on a lang="ka"
+# site) with no way to bust it. A week, revalidatable, costs one 304.
+[[headers]]
+  for = "/_astro/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"
+
+# The catalogue PDF has a deliberately stable, unfingerprinted URL (PLAN §6), so it
+# must stay revalidatable — a future edition reuses this exact path.
+[[headers]]
+  for = "/catalogue/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"

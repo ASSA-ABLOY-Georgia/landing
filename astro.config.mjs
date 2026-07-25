@@ -6,12 +6,25 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  // Placeholder domain until the client provides one (PLAN §7, §9).
-  site: "https://assaabloy.ge",
+  // Canonical origin. Feeds canonical tags, the sitemap's absolute URLs, and the
+  // Web3Forms `redirect` field in ContactForm.astro — so a hardcoded placeholder would
+  // bounce form submissions from a *.netlify.app deploy to a domain that does not
+  // resolve yet.
+  //
+  // ⚠ The CONTEXT gate is load-bearing. DEPLOY_PRIME_URL is set on *every* Netlify
+  // deploy including production, where it is the deploy host (`main--site.netlify.app`),
+  // NOT the custom domain — trusting it there would self-canonicalise the live site onto
+  // netlify.app and send form submissions there too. Only URL is documented as "the main
+  // address to your site … or your own custom domain". Locally all three are unset and we
+  // fall through to the placeholder.
+  site:
+    (process.env.CONTEXT === "production" ? process.env.URL : process.env.DEPLOY_PRIME_URL) ||
+    process.env.URL ||
+    "https://assa-abloy.ge",
 
-  // Single family: Noto Sans Georgian (variable 400–800), georgian + latin subsets,
-  // via the Astro Fonts API + Fontsource provider (PLAN §3). Exposed as --font-georgian,
-  // consumed by --font-sans in src/styles/global.css.
+  // Single family: Noto Sans Georgian (variable 400–800), georgian + latin subsets, via
+  // the Astro Fonts API + Fontsource provider. Exposed as --font-georgian, consumed by
+  // --font-sans in src/styles/global.css.
   fonts: [
     {
       provider: fontProviders.fontsource(),
@@ -27,8 +40,8 @@ export default defineConfig({
   },
 
   integrations: [
-    // /contact/thanks is noindex (PLAN §7) — listing it in the sitemap would send
-    // crawlers contradictory signals. (/404 is excluded by the integration itself.)
+    // /contact/thanks is noindex — listing it in the sitemap would send crawlers
+    // contradictory signals. (/404 is excluded by the integration itself.)
     sitemap({ filter: (page) => !page.endsWith("/contact/thanks/") }),
   ],
 });

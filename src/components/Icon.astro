@@ -1,15 +1,14 @@
 ---
 /**
- * Icon — inline SVG set (PLAN §1, §4.5).
+ * Icon — inline SVG set.
  *
  * Solid-fill glyphs on a 24px frame, `fill: currentColor` so they inherit the
  * surrounding text color. Every glyph is authored so that any interior counter
  * is a strictly-enclosed subpath — `fill-rule: evenodd` then punches it out
  * cleanly (no self-intersection artefacts).
  *
- * Accessibility (PLAN §4.5): decorative by default —
- * `aria-hidden="true" focusable="false"`. Pass `label` to make the icon
- * meaningful; it becomes `role="img"` with an SVG `<title>`.
+ * Decorative by default (`aria-hidden="true" focusable="false"`). Pass `label`
+ * to make the icon meaningful; it becomes `role="img"` with an SVG `<title>`.
  */
 
 export type IconName =
@@ -35,7 +34,7 @@ export type IconName =
 
 interface Props {
   name: IconName;
-  /** Frame size in px (PLAN §1: 20/24px frames). */
+  /** Frame size in px (20 or 24). */
   size?: number;
   /** Text alternative. Omit for decorative icons (the default). */
   label?: string;
@@ -117,8 +116,8 @@ const paths: Record<IconName, string> = {
     "M5.6 4 12 10.4 18.4 4 20 5.6 13.6 12 20 18.4 18.4 20 12 13.6 5.6 20 4 18.4 10.4 12 4 5.6z",
   check: "M9.6 16.4 4.9 11.7l1.7-1.7 3 3 7.8-7.8 1.7 1.7z",
   "chevron-right": "M9.1 4.6 16.5 12l-7.4 7.4-1.7-1.7L13.1 12 7.4 6.3z",
-  // Form-error glyph (PLAN §4.5: errors are never colour alone). Solid disc with
-  // the exclamation punched out by the inherited evenodd rule.
+  // Form-error glyph — errors are never colour alone. Solid disc with the
+  // exclamation punched out by the inherited evenodd rule.
   alert:
     "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" +
     "M10.9 6.4h2.2v7.4h-2.2z" +

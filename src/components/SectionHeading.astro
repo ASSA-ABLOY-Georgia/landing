@@ -1,22 +1,19 @@
 ---
 /**
- * SectionHeading — PLAN §4 / §4.5.
+ * SectionHeading — eyebrow (a styled <p>, never a heading) + section heading at
+ * --text-h2 / 400. Nothing is drawn beneath it; headings sit on white space.
  *
- * Eyebrow (a styled <p>, never a heading) + section heading at --text-h2 / 400.
- * Nothing is drawn beneath the heading: the decorative cyan progress rule was
- * removed by design revision (DECISIONS DR.1) — headings sit on white space.
- *
- * `onDark` recolors for the navy stat band (heading #F2FAFC, eyebrow #B9E1EF).
+ * `onDark` recolors for the navy stat band and the footer.
  */
 interface Props {
   title: string;
   eyebrow?: string;
   /**
-   * Heading level — h2 by default; h3 keeps the h2→h3 order intact (PLAN §4.5).
+   * Heading level — h2 by default; h3 keeps the h2→h3 order intact.
    *
    * Deliberately NOT named `as`: Astro's language server treats an `as` prop as the
    * polymorphic-component signal and silently widens the whole component's props to
-   * `any`, so `astro check` stops validating every call site (DECISIONS D6.1).
+   * `any`, so `astro check` stops validating every call site.
    */
   level?: "h2" | "h3";
   id?: string;
@@ -52,7 +49,6 @@ const { title, eyebrow, level: Heading = "h2", id, onDark = false, class: classN
     color: var(--color-deep-blue);
   }
 
-  /* Navy surfaces — the sanctioned stat band and the footer. */
   .section-heading--on-dark .section-heading__title {
     color: var(--color-tint-pale);
   }

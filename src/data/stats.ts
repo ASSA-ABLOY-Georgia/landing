@@ -1,14 +1,10 @@
 /**
- * "რატომ ASSA ABLOY?" facts — the five stat tiles of the navy band (PLAN §2, §7).
+ * "რატომ ASSA ABLOY?" facts — the five stat tiles of the navy band. CONTENT.md →
+ * Home → Why ASSA ABLOY, byte-for-byte; the icons carry the sanctioned cyan
+ * accent on navy.
  *
- * Source: CONTENT.md → Home → "Why ASSA ABLOY — heading + 5 stats
- * [CLIENT — VERBATIM]". Text copied **byte-for-byte**; icons are the ones
- * CONTENT.md prescribes (globe/users/trophy/lightbulb/lock) and carry the
- * sanctioned cyan accent on navy.
- *
- * Note (CONTENT.md, kept as written): the Home stat says „60 000-ზე მეტი" while
- * About says „დაახლოებით 64 000" — both are client copy; PLAN §9 flags the
- * mismatch for the client rather than resolving it here.
+ * ⚠ Kept as written: this says „60 000-ზე მეტი" while About says
+ * „დაახლოებით 64 000". Both are client copy — the mismatch is theirs to resolve.
  */
 import type { IconName } from "../components/Icon.astro";
 

@@ -6,13 +6,13 @@ import { ui } from "../data/site";
 import "../styles/global.css";
 
 interface Props {
-  /** Page <title> — unique per page (PLAN §7 SEO). */
+  /** Page <title> — unique per page. */
   title: string;
   /** Meta description — unique per page. */
   description: string;
   /** Absolute or root-relative OG image URL. Resolved against `site`. */
   ogImage?: string;
-  /** Marks the page noindex (e.g. /contact/thanks, /404) — PLAN §7. */
+  /** Marks the page noindex (e.g. /contact/thanks, /404). */
   noindex?: boolean;
 }
 
@@ -32,7 +32,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <meta name="generator" content={Astro.generator} />
 
     <!-- Add the `.js` root class as early as possible so progressive-enhancement
-         reveal styles (Phase 5) only apply when JS is available — no FOUC. -->
+         reveal styles only apply when JS is available — no FOUC. -->
     <script is:inline>
       document.documentElement.classList.add("js");
     </script>
@@ -57,8 +57,8 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL} />
 
-    <!-- Noto Sans Georgian (variable), preloaded (PLAN §3). Injects the @font-face
-         rules + the --font-georgian variable consumed by --font-sans. -->
+    <!-- Noto Sans Georgian (variable), preloaded. Injects the @font-face rules +
+         the --font-georgian variable consumed by --font-sans. -->
     <Font cssVariable="--font-georgian" preload />
   </head>
   <body>
@@ -75,45 +75,40 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <Footer />
 
     {
-      /* Inline script ② — the navy bar's hide/reveal (PLAN §4 motion table, §8
-        Phase 5). It lives here rather than in Header.astro because it needs both
-        ends of the page: the header it moves and the footer sentinel that holds
-        it down. Placed after <Footer /> so both exist when it runs — no
-        DOMContentLoaded wrapper needed.
+      /* The navy bar's hide/reveal. It lives here rather than in Header.astro
+        because it needs both ends of the page: the header it moves and the footer
+        sentinel that holds it down. Placed after <Footer /> so both exist when it
+        runs — no DOMContentLoaded wrapper needed.
 
         Two reasons to hide, one hook (`data-header-hidden`, styled in
         Header.astro): scroll direction, and the footer-proximity hold.
 
         The observer's `rootMargin` carries two deliberate numbers, spelled out
         here rather than in the script so the explanation does not ship to every
-        page (DECISIONS D5.3, D5.4):
+        page:
         • **Top** is one px lower than the boundary, because the sentinel is one
           px tall — shrunk to exactly the boundary, the intersection would begin
-          when the sentinel's BOTTOM edge crossed and the hold would release a
-          pixel early (measured). Offsetting by its height makes the trigger its
-          top edge, which is the top of the footer's pill row.
+          at the sentinel's BOTTOM edge and the hold would release a pixel early.
         • **Bottom** is pushed far below the document so that "inside the root"
           and "below the fold" are one state. With a viewport-sized root the
           observer has THREE states, and a jump to the very bottom — the End key,
-          a fling — crosses from below the root straight to above it in a single
-          frame: no threshold crossed, no callback, and the hold silently never
-          engages. Measured: it did not. Two states cannot be skipped, and unlike
-          a margin derived from `innerHeight` this one never needs re-measuring
-          when the mobile URL bar moves.
+          a fling — crosses from below the root straight to above it in one frame:
+          no threshold crossed, no callback, and the hold never engages. Two
+          states cannot be skipped, and unlike a margin derived from
+          `innerHeight` this one never needs re-measuring when the mobile URL bar
+          moves.
 
-        Two more things are load-bearing about the wiring order, both from the
-        Phase-5 review (DECISIONS D5.13, D5.14):
+        Two things are load-bearing about the wiring order:
         • `measure()` runs BEFORE any listener is attached. Wired last, a throw
           there would leave the bar hiding and revealing on scroll with the hold
-          stuck off — sliding back onto the footer's pill row, silently, which is
-          the one failure this phase exists to prevent. Wired first, a throw
-          leaves the header inert instead: the same graceful state as no-JS.
+          stuck off — sliding silently back onto the footer's pill row. Wired
+          first, a throw leaves the header inert instead: the same graceful state
+          as no-JS.
         • Until `load`, a scroll event only re-seeds the baseline. The browser's
-          scroll restoration lands after this script runs and fires a scroll;
-          read as a gesture it made a reload slide the bar away unasked. A
-          restored position has no direction. The footer hold still applies at
-          load — a page restored at its bottom must not show the bar on the
-          navy footer. */
+          scroll restoration lands after this script runs and fires a scroll; read
+          as a gesture it made a reload slide the bar away unasked. A restored
+          position has no direction. The footer hold still applies at load — a
+          page restored at its bottom must not show the bar on the navy footer. */
     }
     <script is:inline>
       (function () {
@@ -121,12 +116,12 @@ const ogImageURL = new URL(ogImage, Astro.site);
         var footer = document.getElementById("site-footer");
         var sentinel = document.getElementById("footer-nav-sentinel");
         /* Without an IntersectionObserver there can be no footer hold, and a bar
-           that hides on scroll WITHOUT the hold is the exact bug DR.2 reported —
+           that hides on scroll WITHOUT the hold slides onto the footer's own nav —
            so where the observer is missing, the header simply never hides. */
         if (!header || !("IntersectionObserver" in window)) return;
 
         var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-        var CLEAR = 24; // px kept clear between the bar and the footer (PLAN §4)
+        var CLEAR = 24; // px kept clear between the bar and the footer
         var TURN = 8; // px of committed travel before the direction flips
 
         var floor = 0; // scroll depth before hiding is allowed at all
@@ -142,8 +137,8 @@ const ogImageURL = new URL(ogImage, Astro.site);
         var resizeTick = false;
         var settled = document.readyState === "complete"; // see the note above
 
-        /* PLAN §4 override order: ① the header (or its open panel) has focus,
-           ② the mobile panel is open, ③ the footer hold, ④ scroll direction.
+        /* Override order: ① the header (or its open panel) has focus, ② the
+           mobile panel is open, ③ the footer hold, ④ scroll direction.
            Reduced motion cancels the whole mechanism — the bar stays put. */
         function apply() {
           var hide;
@@ -152,7 +147,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
           else if (header.getAttribute("data-nav-open") === "true") hide = false;
           else if (hold) hide = true;
           // Nothing hides in the first `floor` px — the cyan strip's height on
-          // desktop, the merged bar's own height on mobile (DECISIONS D5.5).
+          // desktop, the merged bar's own height on mobile.
           else hide = down && y > floor;
           if (hide === hidden) return;
           hidden = hide;
@@ -202,8 +197,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
           /* The pill row sits this far below the footer's own top edge. Folding
              that inset into the boundary means the hold releases only once the
              FOOTER's top edge has cleared the bar, not just the pills — so the
-             navy bar is never on the navy footer either (PLAN §8 exit criteria,
-             DECISIONS D5.2). */
+             navy bar is never on the navy footer either. */
           var inset = sentinel.getBoundingClientRect().top - footer.getBoundingClientRect().top;
           var next = Math.round(bar + CLEAR + inset);
           if (next === line) return; // mobile URL-bar resizes change nothing
@@ -218,8 +212,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
             {
               /* Do not "simplify" either number — top offsets the sentinel's own
                  height, bottom keeps the observer at TWO states so a jump to the
-                 bottom cannot skip the hold. Full reasoning in the block comment
-                 above this script; DECISIONS D5.3, D5.4. */
+                 bottom cannot skip the hold. Full reasoning above this script. */
               rootMargin: "-" + (line + sentinel.offsetHeight) + "px 0px 100000px 0px",
             },
           );
@@ -250,8 +243,8 @@ const ogImageURL = new URL(ogImage, Astro.site);
           },
           { passive: true },
         );
-        // Focus outranks every reason to hide (PLAN §4.5): Shift+Tab from the
-        // footer into the nav has to bring the bar back, hold or no hold.
+        // Focus outranks every reason to hide: Shift+Tab from the footer into the
+        // nav has to bring the bar back, hold or no hold.
         document.addEventListener("focusin", apply);
         document.addEventListener("focusout", apply);
         reduce.addEventListener("change", apply);
@@ -265,10 +258,9 @@ const ogImageURL = new URL(ogImage, Astro.site);
     </script>
 
     {
-      /* Inline script ③ — scroll-in reveal (PLAN §4 motion table, UX-REPORT §4).
-        One observation per band: the units are the direct children of a
-        `[data-reveal]` band inner, and `.is-visible` fires the CSS in
-        global.css. Removed from observation once revealed — it happens once,
+      /* Scroll-in reveal. One observation per band: the units are the direct
+        children of a `[data-reveal]` band inner, and `.is-visible` fires the CSS
+        in global.css. Removed from observation once revealed — it happens once,
         never again. Progressive enhancement: the pre-reveal state is gated on
         `html.js`, so without JS every band is visible from the first paint. */
     }
@@ -325,7 +317,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
   }
   .skip-link:focus {
     transform: translateY(0);
-    /* Focus ring on a navy surface uses the on-dark color (PLAN §4). */
+    /* Focus ring on a navy surface uses the on-dark color. */
     outline: 2px solid var(--color-tint-pale);
     outline-offset: 2px;
   }

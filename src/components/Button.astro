@@ -1,18 +1,15 @@
 ---
 /**
- * Button — PLAN §4 / UX-REPORT §3.3.
+ * Button — renders an <a> when `href` is set, otherwise a real <button>.
  *
- * variant="primary"   bg cyan, 1px cyan border, deep-blue text, r-4, pad 8×16, 16px/400
- * variant="white"     bg white, 1px #F7F6F5 border, deep-blue text, r-4, pad 8×12,
- *                     15px/500, ~48px tall — the real "secondary", and the same
+ * variant="primary"   cyan fill, deep-blue text — the main CTA
+ * variant="white"     white fill, warm-gray border — the secondary, and the same
  *                     physical button used on photos
  * variant="text-link" no box, deep-blue text + trailing arrow
  *
- * Signature micro-interaction (all variants): the trailing → slides
- * translateX(0 → 6px) over .3s — deliberately slower than the .2s fill.
- * External links get ⧉ instead and never slide (UX-REPORT §3.3).
- *
- * Renders an <a> when `href` is set, otherwise a real <button>.
+ * Signature micro-interaction (all variants): the trailing → slides +6px over
+ * .3s, deliberately slower than the .2s fill. External links get ⧉ instead and
+ * never slide.
  */
 import type { HTMLAttributes } from "astro/types";
 import { ui } from "../data/site";
@@ -27,7 +24,7 @@ interface Props extends Omit<HTMLAttributes<"a">, "type"> {
   /** Button type when rendering a <button> (no href). */
   type?: "button" | "submit" | "reset";
   /** Swaps the trailing → for the ⧉ external glyph, drops the slide, and adds
-   *  `target="_blank" rel="noopener"` (PLAN §6). */
+   *  `target="_blank" rel="noopener"`. */
   external?: boolean;
   /** Set false to render no trailing glyph at all (e.g. footer nav pills). */
   arrow?: boolean;
@@ -79,9 +76,8 @@ const tagProps = href
     cursor: pointer;
   }
 
-  /* Primary — the hero/main CTA. Fill + border transition .2s (PLAN §4).
-     §4's 8×16 padding alone yields 42px; min-height lifts it to the 44px touch
-     target PLAN §4.5 requires (the form submit is this variant). */
+  /* 8×16 padding alone yields 42px; min-height lifts it to the 44px touch
+     target (the form submit is this variant). */
   .btn--primary {
     min-height: 44px;
     padding: 8px 16px;
@@ -99,7 +95,6 @@ const tagProps = href
     border-color: var(--color-cyan-pressed);
   }
 
-  /* White — secondary AND on-image; same physical button on photos and on white. */
   .btn--white {
     min-height: 48px;
     padding: 8px 12px;
@@ -117,7 +112,6 @@ const tagProps = href
     border-color: var(--color-cyan-pressed);
   }
 
-  /* Text-link — no box. */
   .btn--text-link {
     padding: 0;
     font-size: 16px;

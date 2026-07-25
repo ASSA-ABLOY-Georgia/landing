@@ -1,40 +1,22 @@
 ---
 /**
- * ContactForm — the inline Web3Forms form (PLAN §1, §4.5, §7).
+ * ContactForm — the inline Web3Forms form.
  *
  * A plain HTML POST: **zero JavaScript**. Web3Forms takes the submission and its
  * `redirect` field sends the browser to /contact/thanks, so success is announced
- * to AT as an ordinary navigation (PLAN §7).
+ * to AT as an ordinary navigation.
  *
- * Copy (labels, error messages, submit) comes from CONTENT.md → Contact,
- * byte-for-byte. Field styling follows UX-REPORT §3.8 inverted for white grounds:
- * white fill, 1px #C0C8DA, r-4, 16px text (prevents iOS zoom), 44px min height,
- * labels 16px/600.
+ * Errors are red text **plus an icon** (never colour alone), revealed by
+ * `:user-invalid` in the CSS below.
  *
- * Accessibility (PLAN §4.5):
- * - every input has a visible <label for>; the „*" is part of the label copy and
- *   `required` carries the state to AT;
- * - `autocomplete="name|email|tel"`;
- * - errors are #CF0000 text **plus an icon** (never colour alone), revealed by
- *   `:user-invalid` (see the CSS below) — no JavaScript;
- * - ⚠ DEVIATION from §4.5's "aria-invalid + aria-describedby", forced by the
- *   zero-JS constraint (PLAN §1) and recorded in DECISIONS D4.8: both attributes
- *   would have to be *state-dependent*, and CSS cannot change an attribute.
- *   `aria-describedby` pointing at the error text is worse than nothing here —
- *   accname-1.2 §4.3.1 skips a hidden node only when it is NOT directly
- *   referenced, so a referenced-but-hidden message is announced permanently (the
- *   email field would always claim both "required" AND "wrong format"). A static
- *   `aria-invalid="false"` would likewise mask the browser's own validity state.
- *   So AT gets the state from `required` + the browser's native
- *   constraint-validation message on a blocked submit, and sighted users get the
- *   red icon+text; nothing announces something untrue;
- * - the honeypot sits in a visually-hidden wrapper (NOT display:none) that is
- *   `aria-hidden`, and the input is `tabindex="-1"` — out of the a11y tree and
- *   out of the tab order.
- *
- * ⚠ `access_key` is a placeholder until the client provides the destination
- * inbox (PLAN §9). With a placeholder key the POST fails, so the redirect is not
- * end-to-end testable yet (PLAN §8 Phase 6 notes the same).
+ * ⚠ No `aria-invalid`/`aria-describedby`, forced by the zero-JS constraint: both
+ * would have to be *state-dependent*, and CSS cannot change an attribute. A
+ * referenced-but-hidden message is announced permanently (accname-1.2 §4.3.1
+ * skips a hidden node only when it is NOT directly referenced), so the email
+ * field would always claim both "required" AND "wrong format"; a static
+ * `aria-invalid="false"` would likewise mask the browser's own validity state.
+ * Instead AT gets the state from `required` plus the browser's native
+ * constraint-validation message, and sighted users get the red icon+text.
  */
 import Button from "./Button.astro";
 import Icon from "./Icon.astro";
@@ -44,13 +26,12 @@ const WEB3FORMS_ACCESS_KEY = "44530e0a-f254-42b8-868d-e632e6b8fcf4";
 
 // Web3Forms needs an absolute redirect URL; `site` is set in astro.config.mjs.
 // Trailing slash included deliberately: the build emits contact/thanks/index.html,
-// so the slashless form would rely on a host 301 (Reviewer A, m4).
+// so the slashless form would rely on a host 301.
 const redirectURL = new URL("/contact/thanks/", Astro.site).href;
 
 // Email metadata only — never rendered on the page, so deliberately Latin.
 const emailSubject = "ASSA ABLOY Georgia — website contact form";
 
-/** CONTENT.md → Contact → "Error messages [DRAFT]". */
 const errors = {
   required: "ეს ველი სავალდებულოა",
   email: "გთხოვთ, მიუთითოთ სწორი ელ. ფოსტა",
@@ -119,8 +100,9 @@ const errors = {
   </div>
 
   {
-    /* Honeypot — visually hidden (not display:none), removed from the a11y tree
-      and the tab order. Web3Forms discards any submission that fills it. */
+    /* Honeypot — visually hidden (not display:none, so it stays fillable by
+      bots), removed from the a11y tree and the tab order. Web3Forms discards any
+      submission that fills it. */
   }
   <div class="visually-hidden" aria-hidden="true">
     <label for="contact-botcheck">botcheck</label>
@@ -152,8 +134,7 @@ const errors = {
     color: var(--color-deep-blue);
   }
 
-  /* UX-REPORT §3.8 inverted for a white ground. 16px text keeps iOS from
-     zooming on focus; 44px is the PLAN §4.5 touch-target floor. */
+  /* 16px text keeps iOS from zooming on focus; 44px is the touch-target floor. */
   .field__input {
     width: 100%;
     min-height: 44px;
@@ -171,17 +152,13 @@ const errors = {
     resize: vertical;
   }
 
-  /* Error messages: #CF0000 text plus the alert glyph — never colour alone.
-     display:none keeps each one out of the render tree until its field actually
-     fails validation. The ids stay on the messages so a future JS enhancement
-     (or a server-rendered error state) can wire aria-describedby dynamically.
+  /* display:none keeps each message out of the render tree until its field
+     actually fails validation. The ids stay on the messages so a future JS
+     enhancement can wire aria-describedby dynamically.
 
      NOT the `hidden` attribute: Chrome's UA sheet declares
-     `[hidden] { display: none !important }`, which no author rule (not even an
-     inline style) can override — measured in the browser, the messages could
-     never appear. The only cost of plain display:none is that with CSS
-     unavailable all four messages render as static text; with no CSS there is
-     no error styling to speak of either way. */
+     `[hidden] { display: none !important }`, which no author rule can override,
+     so the messages could never appear. */
   .field__error {
     display: none;
     align-items: center;

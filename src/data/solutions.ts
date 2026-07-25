@@ -1,11 +1,6 @@
 /**
- * The six solution cards (PLAN §2, §7).
- *
- * Source: CONTENT.md → Home → "Solutions — 6 cards [CLIENT — VERBATIM]".
- * Every Georgian string below is copied **byte-for-byte** from that section —
- * titles are the bold lead-in, bodies are the text after the em dash. The icon
- * names are the ones CONTENT.md prescribes in parentheses (SVG per PLAN §1,
- * never emoji) and are resolved by Icon.astro.
+ * The six solution cards — CONTENT.md → Home → Solutions, byte-for-byte. The
+ * icon names are the ones CONTENT.md prescribes, resolved by Icon.astro.
  *
  * Rendered on Home (band 4, linked to /products) and Products (category grid).
  */

@@ -1,20 +1,17 @@
 ---
 /**
- * PageHero — the WHITE two-column hero every page opens with (PLAN §2, §7;
- * UX-REPORT §1.4: "left-aligned, asymmetric two-column heroes … never centered,
- * never on a navy panel").
+ * PageHero — the WHITE two-column hero every page opens with. Left-aligned and
+ * asymmetric; never centered, never on a navy panel.
  *
  *   left  — H1 at --text-h1 / weight 400 / deep-blue
  *   right — intro paragraph + optional CTA (the default slot)
  *
- * `single` collapses it to one column for Contact, whose hero PLAN §7 specifies
- * as "WHITE hero, single column (H1 + intro)". The slot is styled here so pages
- * can pass plain <p>/<Button> markup: paragraphs get --text-intro, a button gets
- * its 24px of air.
+ * The slot is styled here so pages can pass plain <p>/<Button> markup:
+ * paragraphs get --text-intro, a button gets its 24px of air.
  */
 interface Props {
   title: string;
-  /** Single-column arrangement — H1 and intro stacked (Contact, PLAN §7). */
+  /** Single-column arrangement — H1 and intro stacked (Contact, 404, thanks). */
   single?: boolean;
   class?: string;
 }
@@ -72,7 +69,7 @@ const { title, single = false, class: className } = Astro.props;
       gap: 40px;
       align-items: start;
     }
-    /* Contact's single-column hero keeps the prose measure instead of splitting. */
+    /* The single-column hero keeps the prose measure instead of splitting. */
     .page-hero--single .page-hero__inner {
       grid-template-columns: minmax(0, 70ch);
       gap: 24px;

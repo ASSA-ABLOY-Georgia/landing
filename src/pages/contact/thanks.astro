@@ -1,21 +1,17 @@
 ---
 /**
- * /contact/thanks — the Web3Forms `redirect` target (PLAN §7).
+ * /contact/thanks — the Web3Forms `redirect` target.
  *
  * Because success is a real navigation, assistive tech announces it like any
- * other page load — no live region, no JavaScript.
- *
- * `noindex`: a thank-you page must never appear in search results (PLAN §7).
- * H1 and body are byte-for-byte from CONTENT.md → Thanks; the <title> follows the
- * „<page> — ASSA ABLOY Georgia" pattern of CONTENT.md's SEO table (that table has
- * no row for this page) and the description reuses the page's own body line.
+ * other page load — no live region, no JavaScript. `noindex`: a thank-you page
+ * must never appear in search results.
  */
 import Button from "../../components/Button.astro";
 import PageHero from "../../components/PageHero.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-/* CONTENT.md → Thanks. One constant for the body so the paragraph and the meta
-   description can never drift apart. */
+/* One constant for the body so the paragraph and the meta description cannot
+   drift apart. */
 const body = "ჩვენ მალე დაგიკავშირდებით.";
 ---
 

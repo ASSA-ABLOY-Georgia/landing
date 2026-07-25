@@ -1,10 +1,10 @@
 /**
- * Site-level data consumed by Header/Footer (PLAN §2).
+ * Site-level data consumed by Header/Footer.
  *
- * Every Georgian string that exists in CONTENT.md is copied **byte-for-byte**
- * (nav labels, contacts, footer name/tagline/legal). Strings marked DERIVED are
- * interface chrome CONTENT.md does not cover (menu toggle labels, landmark
- * labels); they follow the same Georgian voice and are listed for client review.
+ * Every Georgian string that exists in CONTENT.md is copied **byte-for-byte**.
+ * Strings marked DERIVED are interface chrome CONTENT.md does not cover (menu
+ * toggle labels, landmark labels); they follow the same Georgian voice and are
+ * listed for client review.
  */
 
 export interface NavItem {
@@ -12,7 +12,7 @@ export interface NavItem {
   href: string;
 }
 
-/** CONTENT.md → Global → "Nav labels [CLIENT-derived]". Slugs stay Latin (PLAN §2). */
+/** CONTENT.md → Global → nav labels. Slugs stay Latin. */
 export const navItems: NavItem[] = [
   { label: "მთავარი", href: "/" },
   { label: "ჩვენს შესახებ", href: "/about" },
@@ -20,7 +20,7 @@ export const navItems: NavItem[] = [
   { label: "კონტაქტი", href: "/contact" },
 ];
 
-/** CONTENT.md → Global → "Placeholder contacts [CLIENT — placeholders by request]". */
+/** Placeholders, at the client's request. */
 export const contact = {
   phone: "+995 32 2 00 00 00",
   phoneHref: "tel:+995322000000",
@@ -28,7 +28,7 @@ export const contact = {
   emailHref: "mailto:info@assaabloy.ge",
 };
 
-/** CONTENT.md → Global → "Footer [CLIENT — VERBATIM]" + "Footer legal [DRAFT]". */
+/** CONTENT.md → Global → footer. The legal line is still a draft. */
 export const footer = {
   organisation: "ASSA ABLOY Georgia",
   tagline:
@@ -36,7 +36,7 @@ export const footer = {
   legal: "© 2026 ASSA ABLOY Georgia",
 };
 
-/** DERIVED interface strings — not in CONTENT.md (PLAN §9 client-review item). */
+/** DERIVED interface strings — not in CONTENT.md; awaiting client review. */
 export const ui = {
   menuOpen: "მენიუ",
   menuClose: "დახურვა",
@@ -46,16 +46,16 @@ export const ui = {
   skipToContent: "გამოტოვეთ და გადადით მთავარ შინაარსზე",
   /** Text alternative for the ⧉ glyph — the only "leaves the site" signal. */
   opensInNewTab: "იხსნება ახალ ფანჯარაში",
-  /** Contact's two column headings. CONTENT.md gives the info-card labels and the
-   *  form fields but no heading for either column, and PLAN §4.5 requires a real
-   *  h2→h3 outline — so these two are derived (PLAN §9 client-review item). */
+  /** Contact's two column headings. CONTENT.md gives the info-card labels and
+   *  the form fields but no heading for either column, and the outline needs a
+   *  real h2 — so these two are derived. */
   contactInfoHeading: "საკონტაქტო ინფორმაცია",
   contactFormHeading: "მოგვწერეთ",
 };
 
 /**
- * Active-page test for `aria-current="page"` (PLAN §4.5).
- * Trailing slashes are normalised so `/about` and `/about/` both match.
+ * Active-page test for `aria-current="page"`. Trailing slashes are normalised so
+ * `/about` and `/about/` both match.
  */
 export function isCurrentPath(pathname: string, href: string): boolean {
   const normalise = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);

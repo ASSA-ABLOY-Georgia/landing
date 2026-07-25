@@ -1,22 +1,22 @@
 ---
 /**
- * Footer — full-height destination (PLAN §7, UX-REPORT §6; live ratio 1.05×
- * viewport). Navy full-bleed, content boxed to 1248px, in seven layers:
+ * Footer — a full-height destination, not a strip. Navy full-bleed, content
+ * boxed to 1248px, in seven layers:
  *
- *   1. nav as white pill buttons        5. legal bar (#B9E1EF)
+ *   1. nav as white pill buttons        5. legal bar
  *   2. large vertical gap               6. giant cyan wordmark band
- *   3. utility row (wordmark + contacts) 7. tagline (#F2FAFC, 15px)
- *   4. hairline divider (#F2FAFC)
+ *   3. utility row (wordmark + contacts) 7. tagline
+ *   4. hairline divider
  *
  * Layer 3's right-hand social icons are omitted: the client has supplied no
- * social profiles (PLAN §9 open item).
+ * social profiles.
  *
- * Layer 1 also carries the **sentinel** for the header's footer-proximity hold
- * (PLAN §4, §7): a 1px marker pinned to the top edge of the pill row, watched by
- * inline script ② in BaseLayout. The two navs are the same four links and must
- * never meet, so the navy bar is held hidden while the row is near the top of the
- * viewport. The sentinel is what makes that an IntersectionObserver trigger
- * instead of `scrollY` arithmetic — this footer is ~90vh and its height varies.
+ * Layer 1 also carries the **sentinel** for the header's footer-proximity hold:
+ * a 1px marker pinned to the top edge of the pill row, watched by BaseLayout's
+ * header script. The two navs are the same four links and must never meet, so
+ * the navy bar is held hidden while the row is near the top of the viewport. The
+ * sentinel is what makes that an IntersectionObserver trigger instead of
+ * `scrollY` arithmetic — this footer is ~90vh and its height varies.
  */
 import { Image } from "astro:assets";
 import logoCyan from "../assets/logo-cyan.png";
@@ -31,8 +31,8 @@ import { contact, footer, navItems, ui } from "../data/site";
     <!-- 1 — nav as white pill buttons -->
     <nav class="site-footer__nav-region" aria-label={ui.footerNavLabel}>
       {
-        /* Header footer-proximity-hold sentinel (PLAN §4). Absolutely positioned,
-          so it marks the top edge of the pill row without joining the layout. */
+        /* Header footer-proximity-hold sentinel. Absolutely positioned, so it
+          marks the top edge of the pill row without joining the layout. */
       }
       <div class="site-footer__sentinel" id="footer-nav-sentinel" aria-hidden="true"></div>
       <ul class="site-footer__nav" role="list">
@@ -97,9 +97,11 @@ import { contact, footer, navItems, ui } from "../data/site";
     display: flex;
     flex-direction: column;
     padding-block: 64px;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
-  /* 1 — white pills; stack full-width on mobile (UX-REPORT §5). */
+  /* 1 — white pills; stack full-width on mobile. */
   .site-footer__nav-region {
     /* Only to anchor the sentinel. No z-index, so no stacking context. */
     position: relative;
@@ -129,7 +131,7 @@ import { contact, footer, navItems, ui } from "../data/site";
     width: 100%;
   }
 
-  /* 3 — utility row. Social icons intentionally absent (PLAN §9). */
+  /* 3 — utility row. Social icons intentionally absent. */
   .site-footer__utility {
     margin-top: 64px;
     /* Absorbs the slack on tall viewports so the footer reads as a destination. */
@@ -173,7 +175,7 @@ import { contact, footer, navItems, ui } from "../data/site";
   /* 5 — legal */
   .site-footer__legal {
     margin: 24px 0 0;
-    font-size: 16px; /* UX-REPORT §6 layer 5 measured ~16px */
+    font-size: 16px;
     color: var(--color-cyan-pressed);
   }
 
@@ -215,36 +217,6 @@ import { contact, footer, navItems, ui } from "../data/site";
     .site-footer__contact {
       flex-direction: row;
       gap: 32px;
-    }
-  }
-
-  /* Full-height destination on desktop (UX-REPORT §6: the footer is a full screen
-     you arrive at, not a strip you reach).
-
-     `100vh` on the border box, with nothing subtracted. The previous
-     `calc(90vh - 160px)` could not reach the viewport at any size, for two
-     reasons that compounded (DECISIONS D5.18):
-     • the target was 90vh, not 100vh, so a full screen was never the intent; and
-     • Tailwind's preflight sets `box-sizing: border-box` globally, so a
-       `min-height` already INCLUDES this element's 80+80px of padding. Taking
-       160px off again subtracted the padding twice: the rule resolved to
-       90vh − 160px of total height, not 90vh.
-     Solving `max(content, 0.9·vh − 160) ≥ vh` has no solution, so the footer only
-     ever filled the screen by accident — when its own content happened to be
-     taller than the window. Content tops out at ~882px (the giant wordmark stops
-     growing once the boxed column hits its 1248px cap), so every viewport above
-     ~880px tall came up short, by ~300px at 1440.
-
-     `dvh` second so it simply wins where supported; the two are identical on the
-     desktop widths this query covers, and it costs one line to be right on a
-     large tablet in landscape. `min-height`, never `height`: on a short window
-     the content is still taller than the viewport and must be allowed to grow.
-     The slack goes where it already went — `.site-footer__utility`'s
-     `margin-bottom: auto` opens the gap above the divider. */
-  @media (min-width: 1024px) {
-    .site-footer__inner {
-      min-height: 100vh;
-      min-height: 100dvh;
     }
   }
 </style>

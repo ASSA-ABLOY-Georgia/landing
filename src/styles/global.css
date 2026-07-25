@@ -6,7 +6,7 @@
   --color-deep-blue-active: #2E3F66; /* pressed navy actions, dividers on navy */
   --color-cyan: #09C3F1;             /* RATIONED: buttons, header strip,
                                         footer wordmark, icon accents. NEVER text on light,
-                                        never large content panels (UX-REPORT §1.1) */
+                                        never large content panels */
   --color-cyan-pressed: #B9E1EF;     /* button hover; meta text on navy */
   --color-tint-active: #DAF0F7;      /* card hover surface */
   --color-tint-pale: #F2FAFC;        /* light text on navy; palest wash; footer hairline */
@@ -34,18 +34,17 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Everything above this line is a byte-for-byte copy of PLAN §4 and must stay
-   untouched (see DECISIONS.md D1.1 — the file is in .prettierignore so the
-   uppercase hexes and aligned comments survive `pnpm format`).
+   Everything above this line is the brandbook token set and must stay untouched.
+   The file is in .prettierignore so the uppercase hexes and aligned comments
+   survive `pnpm format`.
 
-   Below: Phase-3 global groundwork — focus rings and the boxed content column.
+   Below: global groundwork — focus rings and the boxed content column.
    Component styling lives in the components' own scoped <style> blocks.
    ──────────────────────────────────────────────────────────────────────────── */
 
 @layer base {
-  /* Focus-visible (PLAN §4 / §4.5): 2px ring, 2px offset. `currentColor` on
-     light surfaces; `.on-dark` scopes (navy header/footer/stat band) override
-     the ring to the pale tint #F2FAFC. */
+  /* 2px ring, 2px offset. `currentColor` on light surfaces; `.on-dark` scopes
+     (navy header/footer/stat band) override the ring to the pale tint. */
   :focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
@@ -68,16 +67,12 @@
 
   /* Georgian compounds are long and unbreakable, and the display sizes are large:
      „გადაწყვეტილებების" measures 327px at the 30px floor of --text-h2, inside a
-     312px column at 360px. With the default `overflow-wrap: normal` the word does
-     not break — it paints straight out of its box (measured +15.1px into the right
-     gutter at 360px; at 320px it left the viewport, taking doc.scrollWidth to 351
-     and giving Home a real horizontal scrollbar).
+     312px column at 360px. With the default `overflow-wrap: normal` the word
+     paints straight out of its box and gives the page a horizontal scrollbar.
 
      `break-word` only breaks a word that cannot fit on a line of its own, so
-     ordinary wrapping is untouched. Headings carry every display size, so the risk
-     is theirs; body copy at 16–18px has ~19+ characters of room per line.
-     No component sets `overflow-wrap`, so unlayered component CSS (D5.8) does not
-     override this — verified by re-measuring after the change. */
+     ordinary wrapping is untouched. Headings carry every display size, so the
+     risk is theirs; body copy at 16–18px has room to spare. */
   h1,
   h2,
   h3,
@@ -89,15 +84,14 @@
 }
 
 @layer components {
-  /* Standard content band — the 80px top / 80px bottom rhythm every band shares
-     (PLAN §4 "Vertical section rhythm = 80px top / 80px bottom, every standard
-     band"). One declaration so six pages cannot drift apart. */
+  /* Standard content band — the 80/80 vertical rhythm every band shares. One
+     declaration so six pages cannot drift apart. */
   .section {
     padding-block: 80px;
   }
   /* Grounds: warm-gray for closing/catalogue bands, navy for the ONE sanctioned
      navy content band (the stat band). Navy bands also carry `.on-dark` in the
-     markup so the focus ring flips to #F2FAFC. */
+     markup so the focus ring flips to the pale tint. */
   .section--warm {
     background-color: var(--color-warm-gray);
   }
@@ -105,14 +99,14 @@
     background-color: var(--color-deep-blue);
   }
 
-  /* Long-form prose measure — PLAN §4 "prose measure ~1136px/70ch". */
+  /* Long-form prose measure. */
   .measure {
     max-width: 70ch;
   }
 
   /* Visually hidden but still rendered — deliberately NOT display:none, so it
-     can host the form honeypot (PLAN §4.5: "visually hidden wrapper, not
-     display:none"; `aria-hidden` + `tabindex="-1"` do the a11y-tree removal). */
+     can host the form honeypot (`aria-hidden` + `tabindex="-1"` do the
+     a11y-tree removal). */
   .visually-hidden {
     position: absolute;
     width: 1px;
@@ -125,8 +119,8 @@
     border: 0;
   }
 
-  /* Boxed content column — 1248px of content with 96px side margins at 1440
-     (UX-REPORT §2.1); 40px on tablet, 24px on phones. */
+  /* Boxed content column — 1248px of content with 96px side margins at 1440;
+     40px on tablet, 24px on phones. */
   .container-boxed {
     width: 100%;
     max-width: calc(1248px + 3rem);
@@ -147,7 +141,7 @@
   }
 }
 
-/* ── Scroll-in reveal (Phase 5; PLAN §4 motion table, UX-REPORT §4) ──────────
+/* ── Scroll-in reveal ────────────────────────────────────────────────────────
    Progressive enhancement, two gates:
      • `html.js` — set pre-paint in BaseLayout's <head>, so with JS off (or
        inline scripts blocked) nothing is ever hidden and there is no FOUC;
@@ -155,23 +149,21 @@
    A band opts in with `data-reveal` on its inner container; the reveal units are
    that element's DIRECT CHILDREN. The first child (a section heading, or the
    catalogue cover) leads and the rest — body copy, lists, cards, CTAs — follow
-   0.12s later, which is the live site's order ("heading and image lead; body
-   copy and button follow"). Only opacity and transform animate, so a reveal can
-   never shift layout. Inline script ③ adds `.is-visible` once.
+   0.12s later. Only opacity and transform animate, so a reveal can never shift
+   layout. BaseLayout's reveal script adds `.is-visible` once.
 
    A KEYFRAME ANIMATION, not a transition, and UNLAYERED (outside
    `@layer components`, unlike everything above) — both forced by the same
-   collision, measured in the browser (DECISIONS.md D5.8). A CTA can be a direct
-   child of a band, so the reveal and `Button.astro` land on the same element:
+   collision. A CTA can be a direct child of a band, so the reveal and
+   `Button.astro` land on the same element:
      • layered, the reveal lost outright — Astro emits component CSS unlayered
        and an unlayered normal declaration beats a layered one however specific
-       the layered selector is, so the button kept `transition: background-color
-       .2s, border-color .2s` and snapped from opacity 0 to 1 instead of fading;
+       the layered selector is, so the button snapped from opacity 0 to 1;
      • unlayered but still a transition, the reveal won too hard — its
-       `transition` shorthand replaced the button's, and the .2s hover fill of
-       PLAN §4 snapped instead.
+       `transition` shorthand replaced the button's, so the .2s hover fill
+       snapped instead.
    `animation` is a property no component here declares, so the reveal drives it
-   alone and every element keeps its own `transition` intact. See DECISIONS D5.8. */
+   alone and every element keeps its own `transition` intact. */
 html.js [data-reveal] > * {
   opacity: 0;
   transform: translateY(12px);
@@ -181,18 +173,14 @@ html.js [data-reveal].is-visible > * {
      fill alone, "revealed" exists only as an animation, so anything that
      suppresses animations — a user stylesheet, an animation-blocking extension —
      blanks the band. Keyframes outrank normal declarations while running, so the
-     fade still plays. Timing is inside UX-REPORT §4's .16–.48s window.
+     fade still plays.
 
-     `both`, NOT `forwards` — the two are identical for the lead child and the
-     difference is a visible flicker for every follower. A follower waits
-     `animation-delay: 0.12s`, and during a delay a `forwards` animation fills
-     NOTHING: for those 120ms the element fell through to the static `opacity: 1;
-     transform: none` above, painted fully in place, then snapped back to
-     opacity 0 / +12px as the keyframes took over and rose a second time. That
-     double-take was the jitter on first paint, worst on the bands that are
-     already in view when the page loads. `both` adds the backwards fill, so the
-     `from` keyframe holds through the delay and the element simply waits its
-     turn, hidden. See DECISIONS D5.16. */
+     `both`, NOT `forwards` — during a delay a `forwards` animation fills
+     NOTHING, so for its 120ms a follower would fall through to the static
+     `opacity: 1; transform: none` above, paint fully in place, then snap back to
+     opacity 0 as the keyframes took over. `both` adds the backwards fill, so the
+     `from` keyframe holds through the delay and the element waits its turn
+     hidden. */
   opacity: 1;
   transform: none;
   animation: reveal-rise 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
@@ -223,26 +211,20 @@ html.js [data-reveal].is-visible > * + * {
     transform: none;
     /* Zero duration, NOT `animation: none`. Both stop the motion dead, but
        `none` clears the animation-name — so a visitor who switches the OS
-       setting back off mid-session gives every already-revealed band its
-       animation back, from the top, and the whole page fades in again at once.
-       Keeping the name and collapsing the duration leaves each animation
-       *finished*; changing a duration does not restart an animation, so
-       switching back off changes nothing that has already played. */
+       setting back off mid-session would see every already-revealed band fade in
+       again at once. Collapsing the duration instead leaves each animation
+       *finished*, and changing a duration does not restart an animation. */
     animation-duration: 0s;
-    /* The delay has to go with it. `both` fills backwards, so a follower's
-       0.12s delay would hold the `from` keyframe — blanking every follower for
-       120ms, which is motion, and exactly what this query exists to remove.
-       Like the duration, changing a delay does not restart a finished
-       animation, so the switch-back-off behaviour above is unaffected. */
+    /* The delay has to go with it: `both` fills backwards, so a follower's 0.12s
+       delay would hold the `from` keyframe and blank it for 120ms — motion, and
+       exactly what this query exists to remove. */
     animation-delay: 0s;
   }
 }
 
 /* A printout cannot scroll, so the observer never fires for anything below the
    fold: without this every band the reader had not scrolled past prints blank —
-   on /contact that is the whole form and both phone/email links. Print is also
-   why the revealed state above is declared statically and not left to the
-   animation's fill. (Both reviewers found this independently; DECISIONS D5.11.) */
+   on /contact that is the whole form and both phone/email links. */
 @media print {
   html.js [data-reveal] > * {
     opacity: 1;

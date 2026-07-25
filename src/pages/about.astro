@@ -1,29 +1,20 @@
 ---
 /**
- * About (`/about`) — the airy component hub of PLAN §7 ("About"):
- * white two-column PageHero (no CTA) → intro → ჩვენი მისია → რას გთავაზობთ (list)
- * → რატომ ჩვენ? (check-list) → მსოფლიო გამოცდილება → ღირებულებები (3 cards)
- * → closing CTA band.
- *
- * Every Georgian string is byte-for-byte from CONTENT.md → About, which is
- * [CLIENT — VERBATIM] for the entire page. The `**bold**` spans CONTENT.md marks
- * become <strong>; the list items keep their trailing „;" exactly as written.
+ * About (`/about`) — white two-column PageHero (no CTA) → intro → ჩვენი მისია →
+ * რას გთავაზობთ (list) → რატომ ჩვენ? (check-list) → მსოფლიო გამოცდილება →
+ * ღირებულებები (3 cards) → closing CTA band.
  *
  * Prose lives in the constants below, not inline in the markup: Prettier reflows
  * long JSX text to the print width and had already split „64 000" across two
  * source lines. String literals are immune, so the shipped text nodes are the
  * CONTENT.md passages exactly.
  *
- * ⚠ Composition note: PLAN §7 sketches this page as alternating two-column
- * text↔image FeaturedContent bands, but the client has supplied no photography
- * (Phase 2 produced logo variants, the catalogue cover and the OG image only).
- * The bands therefore lean on white/warm-gray grounds and the same asymmetric
- * two-column shape with the media column absent — heading left, copy right
- * (UX-REPORT §3.7 shape b). The grounds alternate strictly, which forces the lead
- * band to be the tinted one: with seven bands, an alternating run is fixed by its
- * first member, and ღირებულებები must land on white because its cards are
- * themselves warm-gray. Photography is a PLAN §9 client item; the layout takes
- * images without restructuring when it arrives.
+ * ⚠ The bands are two-column text↔image by design, but the client has supplied
+ * no photography, so they run with the media column absent — heading left, copy
+ * right. The grounds alternate strictly, which forces the lead band to be the
+ * tinted one: with seven bands an alternating run is fixed by its first member,
+ * and ღირებულებები must land on white because its cards are themselves
+ * warm-gray. The layout takes images without restructuring when they arrive.
  */
 import Button from "../components/Button.astro";
 import Card from "../components/Card.astro";
@@ -76,8 +67,7 @@ const reasons = [
   "გაყიდვის შემდგომი მომსახურება და ტექნიკური მხარდაჭერა.",
 ];
 
-/* CONTENT.md → About → "ჩვენი ღირებულებები (render as 3 cards)" — the bold term
-   is the card title, the text after the em dash is the body. */
+/* CONTENT.md → About → "ჩვენი ღირებულებები". */
 const values = [
   { title: "ინოვაცია", body: "თანამედროვე ტექნოლოგიები უსაფრთხოებისთვის." },
   { title: "სანდოობა", body: "ხარისხი, რომელსაც ენდობიან მთელ მსოფლიოში." },
@@ -98,9 +88,8 @@ const values = [
 
   {
     /* Intro — two paragraphs, no heading (the lead of the page). Every band below
-      the hero carries `data-reveal`: its direct children (here the one prose
-      block; in the two-column bands the heading, then the copy) fade and rise in
-      on viewport entry — inline script ③, heading leading. */
+      the hero carries `data-reveal`: its direct children fade and rise in on
+      viewport entry, heading leading. */
   }
   <section class="section section--warm">
     <div class="container-boxed" data-reveal>
@@ -208,8 +197,7 @@ const values = [
 </BaseLayout>
 
 <style>
-  /* Two-column band: heading left, copy right — the FeaturedContent shape with
-     the media column absent (see the file header note). */
+  /* Two-column band: heading left, copy right (see the file header note). */
   .band-split {
     display: grid;
     gap: 32px;
@@ -233,11 +221,10 @@ const values = [
     margin-top: 40px;
   }
 
-  /* Chevron/check marker lists (UX-REPORT §2.4's chevron-prefixed pattern, which
-     does not specify cyan). The glyph is deep-blue, not a cyan accent: it is the
-     list's ONLY marker, and cyan measures 2.08:1 on white / 1.93:1 on warm-gray —
-     legible enough for a 32px card icon beside a title, not for a 20px marker
-     doing the list's work. Deep-blue is 16.4:1 / 15.2:1 and rations cyan tighter. */
+  /* Chevron/check marker lists. The glyph is deep-blue, not a cyan accent: it is
+     the list's ONLY marker, and cyan measures 2.08:1 on white / 1.93:1 on
+     warm-gray — legible enough for a 32px card icon beside a title, not for a
+     20px marker doing the list's work. Deep-blue is 16.4:1 / 15.2:1. */
   .marker-list {
     display: flex;
     flex-direction: column;
@@ -275,8 +262,8 @@ const values = [
     padding: 0;
     list-style: none;
   }
-  /* The <li> keeps its default display: overriding it can cost the listitem role
-     in WebKit. The card fills the stretched grid row instead. */
+  /* The <li> keeps its default display — overriding it can cost the listitem
+     role in WebKit — so the card fills the stretched row instead. */
   .values-grid :global(.card) {
     width: 100%;
     height: 100%;
@@ -290,8 +277,8 @@ const values = [
 
   @media (min-width: 1024px) {
     /* 5/7, not 50/50: the heading column holds one to three lines while the copy
-       column runs long, and an even split left up to 391px of empty ground beside
-       a single-line heading (Reviewer B, N5). */
+       column runs long, and an even split left up to 391px of empty ground
+       beside a single-line heading. */
     .band-split {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: 40px;

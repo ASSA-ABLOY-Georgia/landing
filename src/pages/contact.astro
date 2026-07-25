@@ -1,17 +1,14 @@
 ---
 /**
- * Contact (`/contact`) — PLAN §7 ("Contact"): white single-column hero, then two
- * columns — (a) the info card with `tel:`/`mailto:` links and small icons,
- * (b) the inline Web3Forms form.
+ * Contact (`/contact`) — white single-column hero, then two columns: (a) the
+ * info card with `tel:`/`mailto:` links and small icons, (b) the inline
+ * Web3Forms form. The inline form is a deliberate divergence from the live site,
+ * which links out to an external inquiry form.
  *
- * The inline form is a deliberate divergence from the live site, which links out
- * to an external inquiry form (UX-REPORT §2.5) — sanctioned by PLAN §7.
- *
- * Copy is byte-for-byte from CONTENT.md → Contact (hero intro, the two info-card
- * labels, and the placeholder phone/email from CONTENT.md → Global). The two
- * column headings are DERIVED (`ui.contactInfoHeading` / `ui.contactFormHeading`):
- * CONTENT.md gives the fields and labels but no heading for either column, and
- * PLAN §4.5 requires a real h2 outline. Both are PLAN §9 client-review items.
+ * The two column headings are DERIVED (`ui.contactInfoHeading` /
+ * `ui.contactFormHeading`): CONTENT.md gives the fields and labels but no
+ * heading for either column, and the outline needs a real h2. Both await client
+ * review.
  */
 import ContactForm from "../components/ContactForm.astro";
 import Icon from "../components/Icon.astro";
@@ -20,7 +17,7 @@ import SectionHeading from "../components/SectionHeading.astro";
 import { contact, ui } from "../data/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-/** CONTENT.md → Contact → "Hero intro". A literal, so Prettier cannot reflow it. */
+/** A literal, so Prettier cannot reflow it. */
 const heroIntro =
   "გაქვთ შეკითხვა ან გჭირდებათ კონსულტაცია? მოგვწერეთ ან დაგვირეკეთ — ჩვენი გუნდი მზადაა დაგეხმაროთ.";
 ---
@@ -34,10 +31,10 @@ const heroIntro =
   </PageHero>
 
   {
-    /* `data-reveal` (inline script ③): the two columns fade and rise in on
-      viewport entry, the info card leading and the form following. Nothing about
-      the form's zero-JS POST depends on it — the reveal only touches opacity and
-      transform, and without JS the columns are simply visible. */
+    /* `data-reveal`: the two columns fade and rise in on viewport entry, the
+      info card leading and the form following. Nothing about the form's zero-JS
+      POST depends on it — the reveal only touches opacity and transform, and
+      without JS the columns are simply visible. */
   }
   <section class="section">
     <div class="container-boxed contact-grid" data-reveal>
@@ -87,20 +84,18 @@ const heroIntro =
     gap: 56px;
   }
 
-  /* These two are COLUMN labels inside one band, not band headings. Left at
-     --text-h2 they render two 46px headings side by side (one of them wrapping) —
-     a shape the live site never produces; UX-REPORT §5 reserves 46px for the
-     single band heading. They stay <h2> for the outline (PLAN §4.5) and drop to
-     the H3 tier visually. The wrapper is what carries the override: the
-     SectionHeading root is authored in another component, so a class passed to it
-     gets no page scope id and an ancestor selector on it would never match
-     (DECISIONS D3.2). */
+  /* These two are COLUMN labels inside one band, not band headings: left at
+     --text-h2 they render two 46px headings side by side, a shape the site
+     reserves for a single band heading. They stay <h2> for the outline and drop
+     to the H3 tier visually. The wrapper is what carries the override — the
+     SectionHeading root is authored in another component, so a class passed to
+     it gets no page scope id and an ancestor selector would never match. */
   .contact-col-heading :global(.section-heading__title) {
     font-size: var(--text-h3);
   }
 
-  /* The "info card" shell — the Card component takes a linked/slotted title, so
-     the contacts get the same warm-gray r-8 ground as a plain panel. */
+  /* The "info card" shell — the Card component wants a linked/slotted title, so
+     the contacts get the same warm-gray r-8 ground as a plain panel instead. */
   .info-panel {
     margin-top: 40px;
     padding: 24px;

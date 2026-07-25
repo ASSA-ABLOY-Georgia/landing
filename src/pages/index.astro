@@ -1,20 +1,14 @@
 ---
 /**
- * Home — the seven bands of PLAN §7 ("Home (`/`)"):
+ * Home — seven bands:
  *   1 white two-column hero · 2 full-bleed cyan display band · 3 white intro
  *   4 solutions grid (6 cards) · 5 navy stat band · 6 industry pills
  *   7 warm-gray innovation closing band
  *
- * All Georgian copy is byte-for-byte from CONTENT.md → Home (the card, stat and
- * pill lists come through src/data/*.ts). Prose lives in the `copy` constants
- * below rather than inline in the markup: Prettier reflows long JSX text to the
- * print width, which would break the byte-exact passages across source lines
- * (and once split „64 000"-style numbers, see about.astro). String literals are
- * left alone, so what ships is exactly what CONTENT.md says.
- *
- * Cyan appears here exactly where PLAN §4 rations it: the display band, the
- * primary buttons, and the card/stat icon accents. Content bands are white or
- * warm-gray with navy text; the stat band is the one sanctioned navy band.
+ * Prose lives in the `copy` constants below rather than inline in the markup:
+ * Prettier reflows long JSX text to the print width, which would break the
+ * byte-exact CONTENT.md passages across source lines. String literals are left
+ * alone, so what ships is exactly what CONTENT.md says.
  */
 import Button from "../components/Button.astro";
 import Card from "../components/Card.astro";
@@ -26,7 +20,7 @@ import { solutions } from "../data/solutions";
 import { stats } from "../data/stats";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-/** CONTENT.md → Home. Verbatim; the keys name the band they belong to. */
+/** CONTENT.md → Home, verbatim. The keys name the band they belong to. */
 const copy = {
   heroIntro:
     "ASSA ABLOY არის წვდომის გადაწყვეტილებების მსოფლიო ლიდერი. ჩვენ ვქმნით ინოვაციურ მექანიკურ და ციფრულ სისტემებს, რომლებიც უზრუნველყოფს უსაფრთხო, მარტივ და ეფექტურ წვდომას საცხოვრებელ, კომერციულ და სამრეწველო ობიექტებზე.",
@@ -42,17 +36,16 @@ const copy = {
   title="ASSA ABLOY Georgia — წვდომის გადაწყვეტილებების მსოფლიო ლიდერი"
   description="ASSA ABLOY-ის ოფიციალური წარმომადგენლობა საქართველოში — მექანიკური და ციფრული საკეტები, Access Control, ავტომატური და უსაფრთხოების კარები."
 >
-  {/* 1 — hero: white, two-column (UX-REPORT §1.4) */}
+  {/* 1 — hero: white, two-column */}
   <PageHero title="ვქმნით უსაფრთხო და თავისუფალ წვდომას სამყაროში">
     <p>{copy.heroIntro}</p>
     <Button href="/products">ჩვენი პროდუქტები</Button>
   </PageHero>
 
   {
-    /* 2 — the cyan display band: our static stand-in for the live site's Scene7
-      hero video (UX-REPORT §8). One line of oversized deep-blue display type on
-      bright cyan, with white pill CTAs lower-left. The line is marketing display
-      type, not a section label, so it is a <p> and stays out of the outline. */
+    /* 2 — the cyan display band: a static stand-in for the live site's hero
+      video. The line is marketing display type, not a section label, so it is a
+      <p> and stays out of the outline. */
   }
   <section class="display-band">
     <div class="container-boxed display-band__inner">
@@ -66,10 +59,9 @@ const copy = {
 
   {
     /* 3 — intro. From here down every band opts into the scroll-in reveal
-      (`data-reveal`, inline script ③): its direct children fade/rise in on
-      viewport entry, heading first. The hero and the cyan display band stay out
-      of it — they are the page's opening frame, above the fold, and the H1 is
-      the LCP element (DECISIONS D5.7). */
+      (`data-reveal`): its direct children fade/rise in on viewport entry,
+      heading first. The hero and the cyan display band stay out of it — they are
+      the page's opening frame, above the fold, and the H1 is the LCP element. */
   }
   <section class="section">
     <div class="container-boxed" data-reveal>
@@ -97,7 +89,7 @@ const copy = {
     </div>
   </section>
 
-  {/* 5 — "რატომ ASSA ABLOY?": the ONE sanctioned navy content band (PLAN §7) */}
+  {/* 5 — "რატომ ASSA ABLOY?": the ONE sanctioned navy content band */}
   <section class="section section--navy on-dark">
     <div class="container-boxed" data-reveal>
       <SectionHeading title="რატომ ASSA ABLOY?" onDark />
@@ -151,8 +143,8 @@ const copy = {
   }
   /* The industries lead-in sits inside SectionHeading, above the pills. It is
      flagged with its own class rather than an ancestor selector: Astro scopes
-     every compound, and `.section-heading` is authored in another component
-     (DECISIONS D3.2) — the ancestor form would silently never match. */
+     every compound, and `.section-heading` is authored in another component —
+     the ancestor form would silently never match. */
   .band__body--lead {
     margin-bottom: 0;
   }
@@ -169,8 +161,7 @@ const copy = {
     min-height: 50vh;
     padding-block: 80px;
   }
-  /* "One line of oversized deep-blue display type" (PLAN §7 band 2) — a tier
-     above the H1 (58px ceiling), so it gets its own clamp: 40→80px. */
+  /* A tier above the H1 (58px ceiling), so it gets its own clamp: 40→80px. */
   .display-band__line {
     max-width: 24ch;
     margin: 0;
@@ -179,7 +170,7 @@ const copy = {
     line-height: 1.05;
     color: var(--color-deep-blue);
   }
-  /* Pills stack full-width on phones (UX-REPORT §5), row from tablet up. */
+  /* Pills stack full-width on phones, row from tablet up. */
   .display-band__ctas {
     display: flex;
     flex-direction: column;
@@ -194,8 +185,8 @@ const copy = {
     padding: 0;
     list-style: none;
   }
-  /* The <li> keeps its default display: overriding it can cost the listitem role
-     in WebKit. The card fills the stretched grid row instead. */
+  /* The <li> keeps its default display — overriding it can cost the listitem
+     role in WebKit — so the card fills the stretched row instead. */
   .solutions-grid :global(.card) {
     width: 100%;
     height: 100%;
@@ -211,7 +202,7 @@ const copy = {
   }
   .stat__icon {
     display: inline-flex;
-    /* Sanctioned cyan icon accent on navy (PLAN §4). */
+    /* Sanctioned cyan icon accent on navy. */
     color: var(--color-cyan);
   }
   .stat__text {
