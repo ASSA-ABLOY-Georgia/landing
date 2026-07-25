@@ -96,9 +96,14 @@ const values = [
     <p>{copy.heroSubtitle}</p>
   </PageHero>
 
-  {/* Intro — two paragraphs, no heading (the lead of the page). */}
+  {
+    /* Intro — two paragraphs, no heading (the lead of the page). Every band below
+      the hero carries `data-reveal`: its direct children (here the one prose
+      block; in the two-column bands the heading, then the copy) fade and rise in
+      on viewport entry — inline script ③, heading leading. */
+  }
   <section class="section section--warm">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <div class="prose measure">
         <p>{copy.introLead}<strong>{copy.introBold}</strong>{copy.introRest}</p>
         <p>{copy.introSecond}</p>
@@ -108,7 +113,7 @@ const values = [
 
   {/* მისია */}
   <section class="section">
-    <div class="container-boxed band-split">
+    <div class="container-boxed band-split" data-reveal>
       <SectionHeading title="ჩვენი მისია" />
       <div class="prose">
         <p>{copy.mission}</p>
@@ -118,7 +123,7 @@ const values = [
 
   {/* რას გთავაზობთ */}
   <section class="section section--warm">
-    <div class="container-boxed band-split">
+    <div class="container-boxed band-split" data-reveal>
       <SectionHeading title="რას გთავაზობთ" />
       <div class="prose">
         <p>{copy.portfolioLeadIn}</p>
@@ -141,7 +146,7 @@ const values = [
 
   {/* რატომ ჩვენ? — check-list */}
   <section class="section">
-    <div class="container-boxed band-split">
+    <div class="container-boxed band-split" data-reveal>
       <SectionHeading title="რატომ ჩვენ?" />
       <div class="prose">
         <ul class="marker-list marker-list--check" role="list">
@@ -162,7 +167,7 @@ const values = [
 
   {/* მსოფლიო გამოცდილება — ადგილობრივი მხარდაჭერა */}
   <section class="section section--warm">
-    <div class="container-boxed band-split">
+    <div class="container-boxed band-split" data-reveal>
       <SectionHeading title="მსოფლიო გამოცდილება — ადგილობრივი მხარდაჭერა" />
       <div class="prose">
         <p>{copy.worldExperience}</p>
@@ -172,7 +177,7 @@ const values = [
 
   {/* ღირებულებები — 3 cards on white (the cards carry the warm-gray) */}
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="ჩვენი ღირებულებები">
         <p class="band-lead measure">{copy.valuesLeadIn}</p>
       </SectionHeading>
@@ -192,7 +197,7 @@ const values = [
 
   {/* Closing band */}
   <section class="section section--warm">
-    <div class="container-boxed band-split">
+    <div class="container-boxed band-split" data-reveal>
       <SectionHeading title="ერთად ვქმნით უფრო უსაფრთხო მომავალს" />
       <div class="prose">
         <p>{copy.closing}</p>

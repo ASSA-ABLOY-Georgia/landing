@@ -125,3 +125,107 @@
     }
   }
 }
+
+/* ── Scroll-in reveal (Phase 5; PLAN §4 motion table, UX-REPORT §4) ──────────
+   Progressive enhancement, two gates:
+     • `html.js` — set pre-paint in BaseLayout's <head>, so with JS off (or
+       inline scripts blocked) nothing is ever hidden and there is no FOUC;
+     • `prefers-reduced-motion: reduce` — cancels the effect outright.
+   A band opts in with `data-reveal` on its inner container; the reveal units are
+   that element's DIRECT CHILDREN. The first child (a section heading, or the
+   catalogue cover) leads and the rest — body copy, lists, cards, CTAs — follow
+   0.12s later, which is the live site's order ("heading and image lead; body
+   copy and button follow"). Only opacity and transform animate, so a reveal can
+   never shift layout. Inline script ③ adds `.is-visible` once.
+
+   A KEYFRAME ANIMATION, not a transition, and UNLAYERED (outside
+   `@layer components`, unlike everything above) — both forced by the same
+   collision, measured in the browser (DECISIONS.md D5.8). A CTA can be a direct
+   child of a band, so the reveal and `Button.astro` land on the same element:
+     • layered, the reveal lost outright — Astro emits component CSS unlayered
+       and an unlayered normal declaration beats a layered one however specific
+       the layered selector is, so the button kept `transition: background-color
+       .2s, border-color .2s` and snapped from opacity 0 to 1 instead of fading;
+     • unlayered but still a transition, the reveal won too hard — its
+       `transition` shorthand replaced the button's, and the .2s hover fill of
+       PLAN §4 snapped instead.
+   `animation` is a property no component here declares, so the reveal drives it
+   alone and every element keeps its own `transition` intact. See DECISIONS D5.8. */
+html.js [data-reveal] > * {
+  opacity: 0;
+  transform: translateY(12px);
+}
+html.js [data-reveal].is-visible > * {
+  /* The end state is declared statically AS WELL AS held by the fill. With the
+     fill alone, "revealed" exists only as an animation, so anything that
+     suppresses animations — a user stylesheet, an animation-blocking extension —
+     blanks the band. Keyframes outrank normal declarations while running, so the
+     fade still plays. Timing is inside UX-REPORT §4's .16–.48s window.
+
+     `both`, NOT `forwards` — the two are identical for the lead child and the
+     difference is a visible flicker for every follower. A follower waits
+     `animation-delay: 0.12s`, and during a delay a `forwards` animation fills
+     NOTHING: for those 120ms the element fell through to the static `opacity: 1;
+     transform: none` above, painted fully in place, then snapped back to
+     opacity 0 / +12px as the keyframes took over and rose a second time. That
+     double-take was the jitter on first paint, worst on the bands that are
+     already in view when the page loads. `both` adds the backwards fill, so the
+     `from` keyframe holds through the delay and the element simply waits its
+     turn, hidden. See DECISIONS D5.16. */
+  opacity: 1;
+  transform: none;
+  animation: reveal-rise 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+html.js [data-reveal].is-visible > * + * {
+  animation-delay: 0.12s;
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  /* The fade finishes first (0.28s of 0.4s); the rise settles last. */
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] > *,
+  html.js [data-reveal].is-visible > * {
+    opacity: 1;
+    transform: none;
+    /* Zero duration, NOT `animation: none`. Both stop the motion dead, but
+       `none` clears the animation-name — so a visitor who switches the OS
+       setting back off mid-session gives every already-revealed band its
+       animation back, from the top, and the whole page fades in again at once.
+       Keeping the name and collapsing the duration leaves each animation
+       *finished*; changing a duration does not restart an animation, so
+       switching back off changes nothing that has already played. */
+    animation-duration: 0s;
+    /* The delay has to go with it. `both` fills backwards, so a follower's
+       0.12s delay would hold the `from` keyframe — blanking every follower for
+       120ms, which is motion, and exactly what this query exists to remove.
+       Like the duration, changing a delay does not restart a finished
+       animation, so the switch-back-off behaviour above is unaffected. */
+    animation-delay: 0s;
+  }
+}
+
+/* A printout cannot scroll, so the observer never fires for anything below the
+   fold: without this every band the reader had not scrolled past prints blank —
+   on /contact that is the whole form and both phone/email links. Print is also
+   why the revealed state above is declared statically and not left to the
+   animation's fill. (Both reviewers found this independently; DECISIONS D5.11.) */
+@media print {
+  html.js [data-reveal] > * {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}

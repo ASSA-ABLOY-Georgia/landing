@@ -15,11 +15,11 @@
  * plain always-visible stacked nav.
  *
  * The navy bar's hide/reveal transform hook (`data-header-hidden`) is styled
- * here; inline script ② that drives it is a Phase-5 deliverable (PLAN §8). That
- * script sets the hook for two reasons: scroll direction, and the
- * **footer-proximity hold** — the bar is held hidden while the footer's pill nav
- * is in view, so the two navs are never on screen together (PLAN §4, DECISIONS
- * DR.2).
+ * here; inline script ② drives it from BaseLayout (it needs the footer's
+ * sentinel as well as this header). It sets the hook for two reasons: scroll
+ * direction, and the **footer-proximity hold** — the bar is held hidden while
+ * the footer's pill nav is near the top of the viewport, so the two navs are
+ * never on screen together (PLAN §4, DECISIONS DR.2).
  */
 import { Image } from "astro:assets";
 import logoDeepBlue from "../assets/logo-deep-blue.png";
@@ -164,7 +164,7 @@ const pathname = Astro.url.pathname;
   :global(html.js) .site-header {
     position: sticky;
     top: calc(-1 * var(--header-sticky-offset));
-    transition: transform 0.3s; /* Phase-5 hook: inline script ② hides/reveals */
+    transition: transform 0.3s; /* the hide/reveal slide — inline script ② */
   }
   :global(html.js) .site-header[data-header-hidden="true"] {
     transform: translateY(-100%);
@@ -352,13 +352,22 @@ const pathname = Astro.url.pathname;
   }
 
   /* Reduced motion kills the hide/reveal outright (PLAN §4: "header stays
-     visible"), not just its transition — the Phase-5 script inherits this,
-     footer-proximity hold included. */
+     visible"), not just its transition — script ② short-circuits to "visible"
+     under the same query, footer-proximity hold included. */
   @media (prefers-reduced-motion: reduce) {
     :global(html.js) .site-header,
     .header__nav-link {
       transition: none;
     }
+    :global(html.js) .site-header[data-header-hidden="true"] {
+      transform: none;
+    }
+  }
+
+  /* A printout must never inherit a hidden header. `position: sticky` prints as
+     static, so a translate left over from the moment the user hit Print would
+     carry the wordmark and the nav off the top of page 1. */
+  @media print {
     :global(html.js) .site-header[data-header-hidden="true"] {
       transform: none;
     }

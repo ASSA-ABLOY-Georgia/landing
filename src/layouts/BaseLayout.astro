@@ -73,6 +73,237 @@ const ogImageURL = new URL(ogImage, Astro.site);
     </main>
 
     <Footer />
+
+    {
+      /* Inline script ② — the navy bar's hide/reveal (PLAN §4 motion table, §8
+        Phase 5). It lives here rather than in Header.astro because it needs both
+        ends of the page: the header it moves and the footer sentinel that holds
+        it down. Placed after <Footer /> so both exist when it runs — no
+        DOMContentLoaded wrapper needed.
+
+        Two reasons to hide, one hook (`data-header-hidden`, styled in
+        Header.astro): scroll direction, and the footer-proximity hold.
+
+        The observer's `rootMargin` carries two deliberate numbers, spelled out
+        here rather than in the script so the explanation does not ship to every
+        page (DECISIONS D5.3, D5.4):
+        • **Top** is one px lower than the boundary, because the sentinel is one
+          px tall — shrunk to exactly the boundary, the intersection would begin
+          when the sentinel's BOTTOM edge crossed and the hold would release a
+          pixel early (measured). Offsetting by its height makes the trigger its
+          top edge, which is the top of the footer's pill row.
+        • **Bottom** is pushed far below the document so that "inside the root"
+          and "below the fold" are one state. With a viewport-sized root the
+          observer has THREE states, and a jump to the very bottom — the End key,
+          a fling — crosses from below the root straight to above it in a single
+          frame: no threshold crossed, no callback, and the hold silently never
+          engages. Measured: it did not. Two states cannot be skipped, and unlike
+          a margin derived from `innerHeight` this one never needs re-measuring
+          when the mobile URL bar moves.
+
+        Two more things are load-bearing about the wiring order, both from the
+        Phase-5 review (DECISIONS D5.13, D5.14):
+        • `measure()` runs BEFORE any listener is attached. Wired last, a throw
+          there would leave the bar hiding and revealing on scroll with the hold
+          stuck off — sliding back onto the footer's pill row, silently, which is
+          the one failure this phase exists to prevent. Wired first, a throw
+          leaves the header inert instead: the same graceful state as no-JS.
+        • Until `load`, a scroll event only re-seeds the baseline. The browser's
+          scroll restoration lands after this script runs and fires a scroll;
+          read as a gesture it made a reload slide the bar away unasked. A
+          restored position has no direction. The footer hold still applies at
+          load — a page restored at its bottom must not show the bar on the
+          navy footer. */
+    }
+    <script is:inline>
+      (function () {
+        var header = document.getElementById("site-header");
+        var footer = document.getElementById("site-footer");
+        var sentinel = document.getElementById("footer-nav-sentinel");
+        /* Without an IntersectionObserver there can be no footer hold, and a bar
+           that hides on scroll WITHOUT the hold is the exact bug DR.2 reported —
+           so where the observer is missing, the header simply never hides. */
+        if (!header || !("IntersectionObserver" in window)) return;
+
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var CLEAR = 24; // px kept clear between the bar and the footer (PLAN §4)
+        var TURN = 8; // px of committed travel before the direction flips
+
+        var floor = 0; // scroll depth before hiding is allowed at all
+        var bar = 0; // header height that occupies the viewport once stuck
+        var line = -1; // the hold boundary, in px from the viewport top
+        var io = null;
+        var hold = false;
+        var down = false;
+        var y = Math.max(0, window.scrollY);
+        var pivot = y; // the extreme of the current run, for the TURN threshold
+        var hidden = false;
+        var scrollTick = false;
+        var resizeTick = false;
+        var settled = document.readyState === "complete"; // see the note above
+
+        /* PLAN §4 override order: ① the header (or its open panel) has focus,
+           ② the mobile panel is open, ③ the footer hold, ④ scroll direction.
+           Reduced motion cancels the whole mechanism — the bar stays put. */
+        function apply() {
+          var hide;
+          if (reduce.matches) hide = false;
+          else if (document.activeElement && header.contains(document.activeElement)) hide = false;
+          else if (header.getAttribute("data-nav-open") === "true") hide = false;
+          else if (hold) hide = true;
+          // Nothing hides in the first `floor` px — the cyan strip's height on
+          // desktop, the merged bar's own height on mobile (DECISIONS D5.5).
+          else hide = down && y > floor;
+          if (hide === hidden) return;
+          hidden = hide;
+          header.setAttribute("data-header-hidden", hide ? "true" : "false");
+        }
+
+        function sample() {
+          scrollTick = false;
+          var next = Math.max(0, window.scrollY); // clamp iOS rubber-banding
+          if (!settled) {
+            y = pivot = next; // pre-load scroll = restoration, not direction
+            apply();
+            return;
+          }
+          if (down) {
+            if (next > pivot) pivot = next;
+            else if (pivot - next > TURN) {
+              down = false;
+              pivot = next;
+            }
+          } else {
+            if (next < pivot) pivot = next;
+            else if (next - pivot > TURN) {
+              down = true;
+              pivot = next;
+            }
+          }
+          y = next;
+          apply();
+        }
+
+        /* Measure the header from the live element and (re)arm the sentinel. The
+           boundary is a rootMargin, so the hold costs no per-scroll layout read. */
+        function measure() {
+          if (!sentinel || !footer) return;
+          // An open mobile panel is not the sticky height — and it pins the bar
+          // visible anyway, so never measure through it.
+          if (header.getAttribute("data-nav-open") === "true") return;
+          // The header's own declared offset, not its resolved `top`: how a
+          // browser resolves `top` on a sticky element is not worth relying on.
+          var offset =
+            parseFloat(
+              window.getComputedStyle(header).getPropertyValue("--header-sticky-offset"),
+            ) || 0;
+          bar = header.offsetHeight - offset; // 72px desktop bar, 64px merged mobile bar
+          floor = Math.max(offset, bar); // 72px desktop (the strip), 64px mobile (the bar)
+          /* The pill row sits this far below the footer's own top edge. Folding
+             that inset into the boundary means the hold releases only once the
+             FOOTER's top edge has cleared the bar, not just the pills — so the
+             navy bar is never on the navy footer either (PLAN §8 exit criteria,
+             DECISIONS D5.2). */
+          var inset = sentinel.getBoundingClientRect().top - footer.getBoundingClientRect().top;
+          var next = Math.round(bar + CLEAR + inset);
+          if (next === line) return; // mobile URL-bar resizes change nothing
+          line = next;
+          if (io) io.disconnect();
+          io = new IntersectionObserver(
+            function (entries) {
+              var entry = entries[entries.length - 1];
+              hold = !entry.isIntersecting && entry.boundingClientRect.top < line;
+              apply();
+            },
+            {
+              /* Do not "simplify" either number — top offsets the sentinel's own
+                 height, bottom keeps the observer at TWO states so a jump to the
+                 bottom cannot skip the hold. Full reasoning in the block comment
+                 above this script; DECISIONS D5.3, D5.4. */
+              rootMargin: "-" + (line + sentinel.offsetHeight) + "px 0px 100000px 0px",
+            },
+          );
+          io.observe(sentinel);
+        }
+
+        measure(); // must stay ahead of the listeners — see the note above
+
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (scrollTick) return;
+            scrollTick = true;
+            requestAnimationFrame(sample);
+          },
+          { passive: true },
+        );
+        window.addEventListener(
+          "resize",
+          function () {
+            if (resizeTick) return;
+            resizeTick = true;
+            requestAnimationFrame(function () {
+              resizeTick = false;
+              measure();
+              apply();
+            });
+          },
+          { passive: true },
+        );
+        // Focus outranks every reason to hide (PLAN §4.5): Shift+Tab from the
+        // footer into the nav has to bring the bar back, hold or no hold.
+        document.addEventListener("focusin", apply);
+        document.addEventListener("focusout", apply);
+        reduce.addEventListener("change", apply);
+        // Whatever position the page settled at is the baseline, not a gesture.
+        window.addEventListener("load", function () {
+          settled = true;
+          y = pivot = Math.max(0, window.scrollY);
+          apply();
+        });
+      })();
+    </script>
+
+    {
+      /* Inline script ③ — scroll-in reveal (PLAN §4 motion table, UX-REPORT §4).
+        One observation per band: the units are the direct children of a
+        `[data-reveal]` band inner, and `.is-visible` fires the CSS in
+        global.css. Removed from observation once revealed — it happens once,
+        never again. Progressive enhancement: the pre-reveal state is gated on
+        `html.js`, so without JS every band is visible from the first paint. */
+    }
+    <script is:inline>
+      (function () {
+        var groups = document.querySelectorAll("[data-reveal]");
+        var i;
+        function show(group) {
+          group.classList.add("is-visible");
+        }
+        // No IntersectionObserver, or the visitor asked for no motion: show
+        // everything at once and stop. (The CSS also drops the transition under
+        // reduced motion, so nothing animates.)
+        if (
+          !("IntersectionObserver" in window) ||
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          for (i = 0; i < groups.length; i++) show(groups[i]);
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            for (var n = 0; n < entries.length; n++) {
+              if (!entries[n].isIntersecting) continue;
+              show(entries[n].target);
+              io.unobserve(entries[n].target);
+            }
+          },
+          // Reveal a little after the band's edge appears, never so late that
+          // content at the bottom of a short page could stay hidden.
+          { rootMargin: "0px 0px -64px 0px" },
+        );
+        for (i = 0; i < groups.length; i++) io.observe(groups[i]);
+      })();
+    </script>
   </body>
 </html>
 

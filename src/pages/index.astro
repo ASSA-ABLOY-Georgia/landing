@@ -64,9 +64,15 @@ const copy = {
     </div>
   </section>
 
-  {/* 3 — intro */}
+  {
+    /* 3 — intro. From here down every band opts into the scroll-in reveal
+      (`data-reveal`, inline script ③): its direct children fade/rise in on
+      viewport entry, heading first. The hero and the cyan display band stay out
+      of it — they are the page's opening frame, above the fold, and the H1 is
+      the LCP element (DECISIONS D5.7). */
+  }
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading eyebrow="ჩვენს შესახებ" title="წვდომის გადაწყვეტილებების მსოფლიო ლიდერი" />
       <p class="band__body measure">{copy.intro}</p>
       <Button variant="white" href="/about">ჩვენს შესახებ</Button>
@@ -75,7 +81,7 @@ const copy = {
 
   {/* 4 — solutions: 6 warm-gray cards, 3×2, stretched-link → /products */}
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="ჩვენი გადაწყვეტილებები" />
       <ul class="solutions-grid" role="list">
         {
@@ -93,7 +99,7 @@ const copy = {
 
   {/* 5 — "რატომ ASSA ABLOY?": the ONE sanctioned navy content band (PLAN §7) */}
   <section class="section section--navy on-dark">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="რატომ ASSA ABLOY?" onDark />
       <ul class="stats" role="list">
         {
@@ -112,7 +118,7 @@ const copy = {
 
   {/* 6 — industries: pale pills, deep-blue text */}
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="ინდუსტრიები">
         <p class="band__body band__body--lead measure">{copy.industriesLeadIn}</p>
       </SectionHeading>
@@ -124,7 +130,7 @@ const copy = {
 
   {/* 7 — innovation closing band */}
   <section class="section section--warm">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading eyebrow="ინოვაცია" title="მომავლის უსაფრთხოება იწყება დღეს" />
       <p class="band__body measure">{copy.innovation}</p>
       <Button href="/contact">დაგვიკავშირდით</Button>

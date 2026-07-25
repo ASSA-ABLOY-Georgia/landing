@@ -49,9 +49,14 @@ const copy = {
     <p>{copy.heroIntro}</p>
   </PageHero>
 
-  {/* Category grid — the solutions-card pattern (UX-REPORT §2.6) */}
+  {
+    /* Category grid — the solutions-card pattern (UX-REPORT §2.6). This and the
+      two bands below carry `data-reveal` (inline script ③): heading first, then
+      the grid. In the catalogue band the cover image is the first child, so the
+      image leads and the copy + PDF buttons follow — the live order exactly. */
+  }
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="ჩვენი გადაწყვეტილებები" />
       <ul class="category-grid" role="list">
         {
@@ -69,7 +74,7 @@ const copy = {
 
   {/* Catalogue — PLAN §6 */}
   <section class="section section--warm">
-    <div class="container-boxed catalogue">
+    <div class="container-boxed catalogue" data-reveal>
       {
         /* Decorative: the cover repeats the heading beside it, so an alt text
           would only duplicate „პროდუქტების კატალოგი 2024" (PLAN §4.5). */
@@ -98,7 +103,7 @@ const copy = {
 
   {/* Closing CTA band */}
   <section class="section">
-    <div class="container-boxed">
+    <div class="container-boxed" data-reveal>
       <SectionHeading title="გჭირდებათ კონსულტაცია?" />
       <p class="band-body measure">{copy.consulting}</p>
       <Button href="/contact">დაგვიკავშირდით</Button>

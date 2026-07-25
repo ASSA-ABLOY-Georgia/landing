@@ -33,8 +33,14 @@ const heroIntro =
     <p>{heroIntro}</p>
   </PageHero>
 
+  {
+    /* `data-reveal` (inline script ③): the two columns fade and rise in on
+      viewport entry, the info card leading and the form following. Nothing about
+      the form's zero-JS POST depends on it — the reveal only touches opacity and
+      transform, and without JS the columns are simply visible. */
+  }
   <section class="section">
-    <div class="container-boxed contact-grid">
+    <div class="container-boxed contact-grid" data-reveal>
       {/* (a) info card */}
       <div>
         <div class="contact-col-heading">
