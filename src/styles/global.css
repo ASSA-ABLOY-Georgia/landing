@@ -65,6 +65,27 @@
     background-color: #ffffff;
     color: var(--color-deep-blue);
   }
+
+  /* Georgian compounds are long and unbreakable, and the display sizes are large:
+     „გადაწყვეტილებების" measures 327px at the 30px floor of --text-h2, inside a
+     312px column at 360px. With the default `overflow-wrap: normal` the word does
+     not break — it paints straight out of its box (measured +15.1px into the right
+     gutter at 360px; at 320px it left the viewport, taking doc.scrollWidth to 351
+     and giving Home a real horizontal scrollbar).
+
+     `break-word` only breaks a word that cannot fit on a line of its own, so
+     ordinary wrapping is untouched. Headings carry every display size, so the risk
+     is theirs; body copy at 16–18px has ~19+ characters of room per line.
+     No component sets `overflow-wrap`, so unlayered component CSS (D5.8) does not
+     override this — verified by re-measuring after the change. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
 }
 
 @layer components {

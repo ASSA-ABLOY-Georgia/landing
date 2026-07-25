@@ -32,8 +32,14 @@ interface Props {
   icon?: IconName;
   /** Text-link CTA label rendered at the card foot. */
   cta?: string;
-  /** Title heading level — keeps h2→h3 order correct per page (PLAN §4.5). */
-  as?: "h2" | "h3" | "h4";
+  /**
+   * Title heading level — keeps h2→h3 order correct per page (PLAN §4.5).
+   *
+   * Deliberately NOT named `as`: Astro's language server treats an `as` prop as the
+   * polymorphic-component signal and silently widens the whole component's props to
+   * `any`, so `astro check` stops validating every call site (DECISIONS D6.1).
+   */
+  level?: "h2" | "h3" | "h4";
   class?: string;
 }
 
@@ -47,7 +53,7 @@ const {
   imageAlt = "",
   icon,
   cta,
-  as: Heading = "h3",
+  level: Heading = "h3",
   class: className,
 } = Astro.props;
 

@@ -28,8 +28,7 @@ export default defineConfig({
 
   integrations: [
     // /contact/thanks is noindex (PLAN §7) — listing it in the sitemap would send
-    // crawlers contradictory signals. /styleguide is also noindex but is deleted
-    // in Phase 6, where sitemap correctness is an exit criterion.
+    // crawlers contradictory signals. (/404 is excluded by the integration itself.)
     sitemap({ filter: (page) => !page.endsWith("/contact/thanks/") }),
   ],
 });

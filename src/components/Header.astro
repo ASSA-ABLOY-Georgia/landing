@@ -52,11 +52,23 @@ const pathname = Astro.url.pathname;
       </button>
 
       <a class="header__brand" href="/">
+        {
+          /*
+          The brand mark renders at two sizes — 36px tall (231w) below 768px, 52px tall
+          (333w) from 768px up. (Below ~390px the flex row runs out of room and
+          `max-width:100%` squeezes it further — 207w at 360, 167w at 320 — so the 231px
+          hint is deliberately the conservative upper bound there.)
+          `densities` would emit viewport-blind 1x/2x descriptors,
+          so a DPR-2 phone downloaded the 666w desktop asset for a 231px box (measured:
+          17 KiB wasted, Lighthouse image-delivery). `widths` + `sizes` lets the browser
+          weigh viewport AND DPR, so mobile takes 462w and only desktop takes 666w.
+        */
+        }
         <Image
           src={logoDeepBlue}
           alt="ASSA ABLOY Georgia"
-          width={333}
-          densities={[1, 2]}
+          widths={[231, 333, 462, 666]}
+          sizes="(min-width: 768px) 333px, 231px"
           loading="eager"
         />
       </a>
