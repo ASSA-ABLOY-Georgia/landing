@@ -1,0 +1,150 @@
+---
+/**
+ * Button — PLAN §4 / UX-REPORT §3.3.
+ *
+ * variant="primary"   bg cyan, 1px cyan border, deep-blue text, r-4, pad 8×16, 16px/400
+ * variant="white"     bg white, 1px #F7F6F5 border, deep-blue text, r-4, pad 8×12,
+ *                     15px/500, ~48px tall — the real "secondary", and the same
+ *                     physical button used on photos
+ * variant="text-link" no box, deep-blue text + trailing arrow
+ *
+ * Signature micro-interaction (all variants): the trailing → slides
+ * translateX(0 → 6px) over .3s — deliberately slower than the .2s fill.
+ * External links get ⧉ instead and never slide (UX-REPORT §3.3).
+ *
+ * Renders an <a> when `href` is set, otherwise a real <button>.
+ */
+import type { HTMLAttributes } from "astro/types";
+import { ui } from "../data/site";
+import Icon from "./Icon.astro";
+
+/* Anchor attributes are the base (target/rel/download all type-check); `type`
+   is re-declared for the <button> branch. Typing it this way instead of an
+   open `[key: string]: unknown` keeps typos catchable. */
+interface Props extends Omit<HTMLAttributes<"a">, "type"> {
+  variant?: "primary" | "white" | "text-link";
+  href?: string;
+  /** Button type when rendering a <button> (no href). */
+  type?: "button" | "submit" | "reset";
+  /** Swaps the trailing → for the ⧉ external glyph, drops the slide, and adds
+   *  `target="_blank" rel="noopener"` (PLAN §6). */
+  external?: boolean;
+  /** Set false to render no trailing glyph at all (e.g. footer nav pills). */
+  arrow?: boolean;
+}
+
+const {
+  variant = "primary",
+  href,
+  type = "button",
+  external = false,
+  arrow = true,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+const classes = ["btn", `btn--${variant}`, className].filter(Boolean).join(" ");
+// `rest` is spread last so an explicit target/rel from the caller still wins.
+const tagProps = href
+  ? { href, ...(external ? { target: "_blank", rel: "noopener" } : {}) }
+  : { type };
+---
+
+<Tag class={classes} {...tagProps} {...rest}>
+  <span class="btn__label"><slot /></span>
+  {
+    arrow && (
+      <span class:list={["btn__glyph", !external && "btn__glyph--slides"]}>
+        <Icon
+          name={external ? "external" : "arrow"}
+          size={20}
+          label={external ? ui.opensInNewTab : undefined}
+        />
+      </span>
+    )
+  }
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-element);
+    font-family: inherit;
+    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Primary — the hero/main CTA. Fill + border transition .2s (PLAN §4).
+     §4's 8×16 padding alone yields 42px; min-height lifts it to the 44px touch
+     target PLAN §4.5 requires (the form submit is this variant). */
+  .btn--primary {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--color-deep-blue);
+    background-color: var(--color-cyan);
+    border: 1px solid var(--color-cyan);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+  .btn--primary:hover {
+    background-color: var(--color-cyan-pressed);
+    border-color: var(--color-cyan-pressed);
+  }
+
+  /* White — secondary AND on-image; same physical button on photos and on white. */
+  .btn--white {
+    min-height: 48px;
+    padding: 8px 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-deep-blue);
+    background-color: #ffffff;
+    border: 1px solid var(--color-warm-gray);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+  .btn--white:hover {
+    background-color: var(--color-cyan-pressed);
+    border-color: var(--color-cyan-pressed);
+  }
+
+  /* Text-link — no box. */
+  .btn--text-link {
+    padding: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-deep-blue);
+    background: none;
+    border: 0;
+  }
+
+  .btn__glyph {
+    display: inline-flex;
+    flex: none;
+    transition: transform 0.3s;
+  }
+  .btn:hover .btn__glyph--slides,
+  .btn:focus-visible .btn__glyph--slides {
+    transform: translateX(6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn,
+    .btn__glyph {
+      transition: none;
+    }
+    .btn:hover .btn__glyph--slides,
+    .btn:focus-visible .btn__glyph--slides {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,232 @@
+---
+/**
+ * Card — one slotted shell covering every live variant (UX-REPORT §3.4/§3.5):
+ * news (image + eyebrow + title + date), solutions (image/icon + title),
+ * promo (image + title + body + text-link CTA) and text-only.
+ *
+ * Contract (PLAN §4): bg #F7F6F5, r-8, overflow hidden, no border/shadow at rest;
+ * image slot ~16:9 object-fit cover; hover AND :focus-within → bg #DAF0F7 +
+ * elevation-1, .12s ease-in / .32s ease-out; the image does NOT zoom.
+ *
+ * Linking uses the stretched-link pattern (PLAN §4.5): a real <a> on the title
+ * plus a pseudo-element hit area — the whole card is clickable, but only one
+ * focus stop and one accessible name.
+ */
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import { ui } from "../data/site";
+import Icon from "./Icon.astro";
+import type { IconName } from "./Icon.astro";
+
+interface Props {
+  title: string;
+  href?: string;
+  /** Off-site link — swaps the CTA glyph for ⧉ and adds target/rel. */
+  external?: boolean;
+  eyebrow?: string;
+  /** Small meta line under the body (dates, tags). */
+  meta?: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Icon-top variant (solutions cards) — cyan accent, a sanctioned cyan use. */
+  icon?: IconName;
+  /** Text-link CTA label rendered at the card foot. */
+  cta?: string;
+  /** Title heading level — keeps h2→h3 order correct per page (PLAN §4.5). */
+  as?: "h2" | "h3" | "h4";
+  class?: string;
+}
+
+const {
+  title,
+  href,
+  external = false,
+  eyebrow,
+  meta,
+  image,
+  imageAlt = "",
+  icon,
+  cta,
+  as: Heading = "h3",
+  class: className,
+} = Astro.props;
+
+const linkAttrs = external ? { target: "_blank", rel: "noopener" } : {};
+---
+
+{
+  /* A plain <div>: the live shell is an <li> (UX-REPORT §3.4) and <article> would
+    announce a role boundary per card. Phase-4 grids supply the list semantics. */
+}
+<div class:list={["card", href && "card--linked", className]}>
+  {
+    image && (
+      <div class="card__media">
+        <Image src={image} alt={imageAlt} width={720} />
+      </div>
+    )
+  }
+  <div class="card__body">
+    {
+      icon && (
+        <span class="card__icon">
+          <Icon name={icon} size={32} />
+        </span>
+      )
+    }
+    {eyebrow && <p class="card__eyebrow">{eyebrow}</p>}
+    <Heading class="card__title">
+      {
+        href ? (
+          <a class="card__link" href={href} {...linkAttrs}>
+            {title}
+          </a>
+        ) : (
+          title
+        )
+      }
+    </Heading>
+    <div class="card__text"><slot /></div>
+    {meta && <p class="card__meta">{meta}</p>}
+    {
+      cta && (
+        <span class="card__cta">
+          {cta}
+          <span class:list={["card__cta-glyph", !external && "card__cta-glyph--slides"]}>
+            <Icon
+              name={external ? "external" : "arrow"}
+              size={20}
+              label={external ? ui.opensInNewTab : undefined}
+            />
+          </span>
+        </span>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--color-warm-gray);
+    border-radius: var(--radius-container);
+    /* Release: soft .32s ease-out. Entry is overridden below to .12s ease-in. */
+    transition:
+      background-color 0.32s ease-out,
+      box-shadow 0.32s ease-out;
+  }
+  /* Only linked cards react — tinting an unclickable card is a false affordance. */
+  .card--linked:hover,
+  .card--linked:focus-within {
+    background-color: var(--color-tint-active);
+    box-shadow: var(--shadow-elevation-1);
+    transition-duration: 0.12s;
+    transition-timing-function: ease-in;
+  }
+
+  /* ~16:9 media, cropped by object-fit. Deliberately NO zoom on hover. */
+  .card__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  .card__media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px;
+  }
+
+  .card__icon {
+    display: inline-flex;
+    margin-bottom: 8px;
+    color: var(--color-cyan);
+  }
+
+  .card__eyebrow {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-secondary);
+  }
+
+  .card__title {
+    margin: 0;
+    font-size: var(--text-card-title);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--color-deep-blue);
+  }
+
+  .card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* Stretched link — the hit area covers the card; the <a> stays the only stop. */
+  .card__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .card__text:empty {
+    display: none;
+  }
+  .card__text {
+    color: var(--color-deep-blue);
+    line-height: 1.55;
+  }
+  .card__text :global(p) {
+    margin: 0;
+  }
+
+  .card__meta {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-deep-blue);
+  }
+  .card__cta-glyph {
+    display: inline-flex;
+    flex: none;
+    transition: transform 0.3s;
+  }
+  .card--linked:hover .card__cta-glyph--slides,
+  .card--linked:focus-within .card__cta-glyph--slides {
+    transform: translateX(6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .card__cta-glyph {
+      transition: none;
+    }
+    .card--linked:hover .card__cta-glyph--slides,
+    .card--linked:focus-within .card__cta-glyph--slides {
+      transform: none;
+    }
+  }
+</style>

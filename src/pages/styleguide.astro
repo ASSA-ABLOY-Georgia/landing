@@ -1,7 +1,37 @@
 ---
-// TEMPORARY dev scratch page — renders every design token from PLAN §4.
-// Deleted in Phase 6 (PLAN §8). noindex so it never leaks into search.
+// TEMPORARY dev scratch page — renders every design token from PLAN §4 and,
+// since Phase 3, every core component. Deleted in Phase 6 (PLAN §8).
+// noindex so it never leaks into search.
+//
+// All Georgian specimens are copied byte-for-byte from CONTENT.md.
+import catalogueCover from "../assets/catalogue-cover.jpg";
+import Button from "../components/Button.astro";
+import Card from "../components/Card.astro";
+import Icon from "../components/Icon.astro";
+import type { IconName } from "../components/Icon.astro";
+import SectionHeading from "../components/SectionHeading.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const iconNames: IconName[] = [
+  "arrow",
+  "external",
+  "lock",
+  "smartphone",
+  "building",
+  "door",
+  "shield",
+  "id-badge",
+  "globe",
+  "users",
+  "trophy",
+  "lightbulb",
+  "phone",
+  "mail",
+  "menu",
+  "close",
+  "check",
+  "chevron-right",
+];
 
 const colors = [
   { name: "deep-blue", hex: "#0B1D47", dark: true },
@@ -51,7 +81,7 @@ const typeScale = [
     label: "Body · base · w400",
     cls: "text-base font-normal",
     sample:
-      "ყოველდღიურად მილიარდობით ადამიანი იყენებს ASSA ABLOY-ის ტექნოლოგიებს — ავტომატურ კარებს, სასტუმროს საკეტებს, წვდომის კონტროლის სისტემებსა და ციფრულ იდენტიფიკაციას.",
+      "ყოველდღიურად მილიარდობით ადამიანი იყენებს ASSA ABLOY-ის ტექნოლოგიებს — ავტომატურ კარებს, სასტუმროს საკეტებს, წვდომის კონტროლის სისტემებსა და ციფრულ იდენტიფიკაციას. ჩვენი მიზანია შევქმნათ უფრო უსაფრთხო, დაცული და თავისუფალი გარემო ადამიანებისა და ორგანიზაციებისთვის.",
   },
 ];
 
@@ -182,6 +212,99 @@ const spacing = [4, 8, 12, 16, 24, 40, 80];
         <span class="on-dark rounded-container bg-deep-blue p-4">
           <a href="#sg-h1" class="rounded-element text-tint-pale underline"> link on navy </a>
         </span>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ===== Phase 3 — core components (PLAN §4 contracts) ========== -->
+    <!-- ============================================================= -->
+
+    <!-- ===== Icons ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">Icons (24px, solid fill, currentColor)</h2>
+      <div class="mt-8 grid grid-cols-3 gap-6 sm:grid-cols-6">
+        {
+          iconNames.map((name) => (
+            <div class="flex flex-col items-center gap-2 text-deep-blue">
+              <Icon name={name} size={24} />
+              <span class="text-[13px] text-text-secondary">{name}</span>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-6 text-[13px] text-text-secondary">
+        Cyan-accent rendering (sanctioned icon use) — the card icon variant below.
+      </p>
+    </section>
+
+    <!-- ===== Buttons ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">
+        Buttons — hover for the +6px arrow slide (.3s) and the fill (.2s)
+      </h2>
+
+      <div class="mt-8 flex flex-wrap items-center gap-4">
+        <Button href="#sg-h1">ჩვენი პროდუქტები</Button>
+        <Button variant="white" href="#sg-h1">ჩვენს შესახებ</Button>
+        <Button variant="text-link" href="#sg-h1">დაგვიკავშირდით</Button>
+        <Button href="#sg-h1" external>კატალოგის ნახვა</Button>
+        <Button variant="white" href="#sg-h1" arrow={false}>გადმოწერა</Button>
+      </div>
+
+      <p class="mt-6 text-[13px] text-text-secondary">
+        The same white button on navy (on-image / footer pill) — and a submit-type
+        <code>&lt;button&gt;</code>.
+      </p>
+      <div
+        class="on-dark mt-4 flex flex-wrap items-center gap-4 rounded-container bg-deep-blue p-6"
+      >
+        <Button variant="white" href="#sg-h1">ჩვენს შესახებ</Button>
+        <Button variant="white" href="#sg-h1" arrow={false}>კონტაქტი</Button>
+        <Button type="submit">გაგზავნა</Button>
+      </div>
+    </section>
+
+    <!-- ===== SectionHeading ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">SectionHeading</h2>
+
+      <div class="mt-8">
+        <SectionHeading as="h3" eyebrow="ინოვაცია" title="მომავლის უსაფრთხოება იწყება დღეს" rule />
+      </div>
+
+      <div class="on-dark mt-10 rounded-container bg-deep-blue p-8">
+        <SectionHeading as="h3" title="რატომ ASSA ABLOY?" onDark rule ruleProgress={65} />
+      </div>
+    </section>
+
+    <!-- ===== Cards ===== -->
+    <section class="mt-20">
+      <h2 class="text-h3 font-medium text-deep-blue">
+        Cards — hover or Tab into one: tint + elevation, image does NOT zoom
+      </h2>
+      <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Card as="h3" title="მექანიკური საკეტები" href="#sg-h1" icon="lock" cta="ჩვენი პროდუქტები">
+          <p>მაღალი ხარისხის საკეტები საცხოვრებელი, კომერციული და სამრეწველო ობიექტებისთვის.</p>
+        </Card>
+
+        <Card
+          as="h3"
+          title="ციფრული წვდომა"
+          href="#sg-h1"
+          image={catalogueCover}
+          imageAlt=""
+          eyebrow="ჩვენი გადაწყვეტილებები"
+          meta="2024"
+        >
+          <p>Smart Lock-ები, Mobile Access და Cloud-ზე დაფუძნებული მართვის სისტემები.</p>
+        </Card>
+
+        <Card as="h3" title="Access Control">
+          <p>
+            წვდომის კონტროლი ოფისებისთვის, ბიზნესცენტრებისთვის, საწარმოებისა და სახელმწიფო
+            დაწესებულებებისთვის.
+          </p>
+        </Card>
       </div>
     </section>
   </div>

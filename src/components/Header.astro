@@ -1,0 +1,362 @@
+---
+/**
+ * Header — two-tier system (PLAN §7, UX-REPORT §3.1).
+ *
+ * Tier 1: cyan utility strip — wordmark (52px) + tel/email links. Static: it
+ *         scrolls away with the page (only the navy bar sticks).
+ * Tier 2: navy nav bar — 4 links, `aria-current="page"` on the active one,
+ *         sticky at the top of the viewport.
+ * Mobile (<768px): the two tiers merge into ONE cyan bar (☰ მენიუ · wordmark);
+ *         the nav becomes a full-width navy panel with ~64px rows and the cyan
+ *         utility links sit below it (UX-REPORT §5).
+ *
+ * Inline script ① (mobile-nav toggle) is progressive enhancement: the collapse
+ * only applies under the `.js` root class, so with JS disabled the panel is a
+ * plain always-visible stacked nav.
+ *
+ * The navy bar's hide-on-scroll-down / reveal-on-scroll-up transform hook
+ * (`data-header-hidden`) is styled here; inline script ② that drives it is a
+ * Phase-5 deliverable (PLAN §8).
+ */
+import { Image } from "astro:assets";
+import logoDeepBlue from "../assets/logo-deep-blue.png";
+import Icon from "./Icon.astro";
+import { contact, isCurrentPath, navItems, ui } from "../data/site";
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header" id="site-header" data-nav-open="false">
+  <!-- Tier 1 — cyan utility strip (mobile: the single merged bar). -->
+  <div class="header__strip">
+    <div class="container-boxed header__strip-inner">
+      <button
+        class="header__toggle"
+        id="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-label-open={ui.menuOpen}
+        data-label-close={ui.menuClose}
+      >
+        <span class="header__toggle-glyph header__toggle-glyph--menu">
+          <Icon name="menu" size={24} />
+        </span>
+        <span class="header__toggle-glyph header__toggle-glyph--close">
+          <Icon name="close" size={24} />
+        </span>
+        <span class="header__toggle-label" id="nav-toggle-label">{ui.menuOpen}</span>
+      </button>
+
+      <a class="header__brand" href="/">
+        <Image
+          src={logoDeepBlue}
+          alt="ASSA ABLOY Georgia"
+          width={333}
+          densities={[1, 2]}
+          loading="eager"
+        />
+      </a>
+
+      <ul class="header__utility" role="list">
+        <li>
+          <a class="header__utility-link" href={contact.phoneHref}>
+            <Icon name="phone" size={16} />{contact.phone}
+          </a>
+        </li>
+        <li>
+          <a class="header__utility-link" href={contact.emailHref}>
+            <Icon name="mail" size={16} />{contact.email}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tier 2 — navy nav bar (desktop) / navy panel (mobile). -->
+  <div class="header__panel" id="site-nav">
+    <nav class="header__nav on-dark" aria-label={ui.primaryNavLabel}>
+      <div class="container-boxed header__nav-inner">
+        <ul class="header__nav-list" role="list">
+          {
+            navItems.map((item) => (
+              <li>
+                <a
+                  class="header__nav-link"
+                  href={item.href}
+                  aria-current={isCurrentPath(pathname, item.href) ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Mobile only: the cyan utility links, below the nav (UX-REPORT §5). -->
+    <div class="header__panel-utility">
+      <div class="container-boxed">
+        <ul class="header__utility header__utility--panel" role="list">
+          <li>
+            <a class="header__utility-link" href={contact.phoneHref}>
+              <Icon name="phone" size={16} />{contact.phone}
+            </a>
+          </li>
+          <li>
+            <a class="header__utility-link" href={contact.emailHref}>
+              <Icon name="mail" size={16} />{contact.email}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+{/* Inline script ① — mobile-nav toggle (PLAN §1, §4.5). */}
+<script is:inline>
+  (function () {
+    var header = document.getElementById("site-header");
+    var toggle = document.getElementById("nav-toggle");
+    var label = document.getElementById("nav-toggle-label");
+    if (!header || !toggle || !label) return;
+    function setOpen(open) {
+      header.setAttribute("data-nav-open", open ? "true" : "false");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      label.textContent = open ? toggle.dataset.labelClose : toggle.dataset.labelOpen;
+    }
+    toggle.addEventListener("click", function () {
+      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    window.matchMedia("(min-width: 768px)").addEventListener("change", function (event) {
+      if (event.matches) setOpen(false);
+    });
+  })();
+</script>
+
+<style>
+  .site-header {
+    z-index: 40;
+    /* One source for the cyan strip's height: it drives both the strip itself and
+       the sticky offset, so the two can never drift apart. */
+    --header-strip-height: 64px;
+    --header-sticky-offset: 0px;
+  }
+
+  /* The nav panel lives INSIDE <header>, so the header may only be sticky where
+     that panel can be collapsed — i.e. when JS is available. Without JS the panel
+     is permanently open, and a sticky header would pin ~440px of nav to the top of
+     every mobile viewport. Desktop is always safe (the panel is the 72px navy bar)
+     and gets its own sticky rule below.
+     The desktop offset pulls the cyan strip out of the sticky area so it scrolls
+     away and only the navy bar sticks (UX-REPORT §3.1). */
+  :global(html.js) .site-header {
+    position: sticky;
+    top: calc(-1 * var(--header-sticky-offset));
+    transition: transform 0.3s; /* Phase-5 hook: inline script ② hides/reveals */
+  }
+  :global(html.js) .site-header[data-header-hidden="true"] {
+    transform: translateY(-100%);
+  }
+
+  /* ── Tier 1 — cyan utility strip ─────────────────────────────────────────── */
+  .header__strip {
+    background-color: var(--color-cyan);
+  }
+  .header__strip-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: var(--header-strip-height);
+  }
+
+  .header__brand {
+    display: inline-flex;
+    align-items: center;
+  }
+  .header__brand :global(img) {
+    height: 36px;
+    width: auto;
+  }
+
+  .header__utility {
+    display: none;
+    align-items: center;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .header__utility-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-deep-blue);
+    text-decoration: none;
+  }
+  .header__utility-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile toggle — hidden without JS so the nav never becomes unreachable. */
+  .header__toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 12px 8px 0;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-deep-blue);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .header__toggle-glyph {
+    display: inline-flex;
+  }
+  .header__toggle-glyph--close,
+  .site-header[data-nav-open="true"] .header__toggle-glyph--menu {
+    display: none;
+  }
+  .site-header[data-nav-open="true"] .header__toggle-glyph--close {
+    display: inline-flex;
+  }
+
+  /* ── Tier 2 — navy nav ───────────────────────────────────────────────────── */
+  .header__nav {
+    background-color: var(--color-deep-blue);
+  }
+  .header__nav-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .header__nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    /* Negative margin + matching padding lets the active highlight bleed past the
+       label without shifting it (mobile rows). */
+    margin-inline: -12px;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-tint-pale);
+    text-decoration: none;
+    border-top: 1px solid var(--color-deep-blue-active);
+    transition: color 0.2s;
+  }
+  /* No hairline where the first row meets the cyan strip. */
+  .header__nav-list li:first-child .header__nav-link {
+    border-top: 0;
+  }
+  .header__nav-link:hover {
+    color: var(--color-cyan);
+  }
+  /* Active page — subtle lighter-navy rounded highlight (UX-REPORT §3.1). */
+  .header__nav-link[aria-current="page"] {
+    background-color: var(--color-deep-blue-active);
+    border-radius: var(--radius-element);
+  }
+
+  /* Mobile: cyan utility block below the nav panel. */
+  .header__panel-utility {
+    background-color: var(--color-cyan);
+    padding-block: 16px;
+  }
+  .header__utility--panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .header__utility--panel .header__utility-link {
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  /* Collapse the panel only when JS is available (progressive enhancement):
+     without JS the toggle stays hidden and the panel is a plain stacked nav.
+     `not all and (min-width: 768px)` is the exact complement of the desktop query —
+     a `max-width: 767.98px` pair leaves fractional widths matching neither. */
+  @media not all and (min-width: 768px) {
+    :global(html.js) .header__toggle {
+      display: inline-flex;
+    }
+    :global(html.js) .header__panel {
+      display: none;
+    }
+    :global(html.js) .site-header[data-nav-open="true"] .header__panel {
+      display: block;
+      /* Keep an open panel inside the viewport on short screens (landscape
+         phones) so every row stays scrollable and reachable by keyboard. */
+      max-height: calc(100vh - var(--header-strip-height));
+      max-height: calc(100dvh - var(--header-strip-height));
+      overflow-y: auto;
+    }
+  }
+
+  /* ── Desktop ─────────────────────────────────────────────────────────────── */
+  @media (min-width: 768px) {
+    .site-header {
+      --header-strip-height: 72px;
+      --header-sticky-offset: var(--header-strip-height);
+      /* Sticky regardless of JS here: the panel is just the navy bar. */
+      position: sticky;
+      top: calc(-1 * var(--header-sticky-offset));
+    }
+    .header__brand :global(img) {
+      height: 52px;
+    }
+    .header__utility {
+      display: flex;
+    }
+    .header__panel-utility {
+      display: none;
+    }
+    .header__nav-inner {
+      display: flex;
+      align-items: center;
+      min-height: 72px;
+    }
+    .header__nav-list {
+      flex-direction: row;
+      gap: 4px;
+    }
+    .header__nav-link {
+      min-height: 44px;
+      margin-inline: 0;
+      padding: 8px 12px;
+      font-size: 15px;
+      border-top: 0;
+      border-radius: var(--radius-element);
+    }
+  }
+
+  /* Reduced motion kills the hide/reveal outright (PLAN §4: "header stays
+     visible"), not just its transition — the Phase-5 script inherits this. */
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .site-header,
+    .header__nav-link {
+      transition: none;
+    }
+    :global(html.js) .site-header[data-header-hidden="true"] {
+      transform: none;
+    }
+  }
+</style>

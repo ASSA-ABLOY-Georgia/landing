@@ -1,0 +1,137 @@
+---
+/**
+ * Icon — inline SVG set (PLAN §1, §4.5).
+ *
+ * Solid-fill glyphs on a 24px frame, `fill: currentColor` so they inherit the
+ * surrounding text color. Every glyph is authored so that any interior counter
+ * is a strictly-enclosed subpath — `fill-rule: evenodd` then punches it out
+ * cleanly (no self-intersection artefacts).
+ *
+ * Accessibility (PLAN §4.5): decorative by default —
+ * `aria-hidden="true" focusable="false"`. Pass `label` to make the icon
+ * meaningful; it becomes `role="img"` with an SVG `<title>`.
+ */
+
+export type IconName =
+  | "arrow"
+  | "external"
+  | "lock"
+  | "smartphone"
+  | "building"
+  | "door"
+  | "shield"
+  | "id-badge"
+  | "globe"
+  | "users"
+  | "trophy"
+  | "lightbulb"
+  | "phone"
+  | "mail"
+  | "menu"
+  | "close"
+  | "check"
+  | "chevron-right";
+
+interface Props {
+  name: IconName;
+  /** Frame size in px (PLAN §1: 20/24px frames). */
+  size?: number;
+  /** Text alternative. Omit for decorative icons (the default). */
+  label?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+// `rest` is spread onto the <svg> so a parent's scoped styles reach it: Astro
+// passes its `data-astro-cid-*` down as a prop, and without the spread it would
+// be dropped, silently breaking any scoped rule written against `class`.
+const { name, size = 24, label, class: className, ...rest } = Astro.props;
+
+const paths: Record<IconName, string> = {
+  // The signature CTA glyph — it slides +6px on hover (Button.astro).
+  arrow: "M13.2 4.6 20.6 12l-7.4 7.4-1.7-1.7 4.5-4.5H3.4v-2.4h12.6l-4.5-4.5z",
+  // External-link glyph (⧉) — replaces the arrow on off-site links; never slides.
+  external: "M19 19H5V5h7V3H3v18h18v-9h-2v7zM14 3v2h3.6l-9.9 9.9 1.4 1.4L19 6.4V10h2V3h-7z",
+  lock:
+    "M12 2a5 5 0 0 1 5 5v3h-2.4V7a2.6 2.6 0 0 0-5.2 0v3H7V7a5 5 0 0 1 5-5z" +
+    "M4.4 10h15.2a1.4 1.4 0 0 1 1.4 1.4v9.2a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20.6v-9.2A1.4 1.4 0 0 1 4.4 10z" +
+    "M12 13.6a1.7 1.7 0 0 0-1 3.1v1.5a1 1 0 0 0 2 0v-1.5a1.7 1.7 0 0 0-1-3.1z",
+  smartphone:
+    "M7.2 2h9.6a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" +
+    "M7.6 6h8.8v11.4H7.6z" +
+    "M10.4 3.9h3.2v1.1h-3.2z" +
+    "M12 18.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z",
+  building:
+    "M3 2h11.2v20H3z" +
+    "M15.4 8.6H21V22h-5.6z" +
+    "M5.2 4.4h2.6v2.4H5.2zM9.4 4.4h2.6v2.4H9.4z" +
+    "M5.2 8.6h2.6v2.4H5.2zM9.4 8.6h2.6v2.4H9.4z" +
+    "M5.2 12.8h2.6v2.4H5.2zM9.4 12.8h2.6v2.4H9.4z" +
+    "M7 17.4h3.2V22H7z" +
+    "M17 11h2.4v2.2H17zM17 15.4h2.4v2.2H17z",
+  // Automatic sliding doors: head rail + two leaves with travel arrows.
+  door:
+    "M2.6 2h18.8v1.8H2.6z" +
+    "M3.6 4.6h7.4V22H3.6z" +
+    "M13 4.6h7.4V22H13z" +
+    "M9.4 11.6v3.4l-2.6-1.7z" +
+    "M14.6 11.6v3.4l2.6-1.7z",
+  shield:
+    "M12 2 20.5 4.9v6.6c0 4.7-3.4 9-8.5 10.5-5.1-1.5-8.5-5.8-8.5-10.5V4.9z" +
+    "M11 15.8 7.6 12.4l1.7-1.7 1.7 1.7 4.7-4.7 1.7 1.7z",
+  "id-badge":
+    "M3.6 3h16.8a1.2 1.2 0 0 1 1.2 1.2v15.6a1.2 1.2 0 0 1-1.2 1.2H3.6a1.2 1.2 0 0 1-1.2-1.2V4.2A1.2 1.2 0 0 1 3.6 3z" +
+    "M8.6 6.6a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2z" +
+    "M8.6 11.8c2.4 0 4.3 1.3 4.3 3v1.4H4.3v-1.4c0-1.7 1.9-3 4.3-3z" +
+    "M14.8 7.4h4.4V9h-4.4zM14.8 10.8h4.4v1.6h-4.4zM14.8 14.2h4.4v1.6h-4.4z",
+  // Ring + equator + (split) meridian — the meridian breaks at the equator so
+  // the two bands never overlap (an overlap would even out to a hole).
+  globe:
+    "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2.2a7.8 7.8 0 1 1 0 15.6 7.8 7.8 0 0 1 0-15.6z" +
+    "M5 10.9h14v2.2H5z" +
+    "M10.9 4.5h2.2v6.4h-2.2zM10.9 13.1h2.2v6.4h-2.2z",
+  users:
+    "M9 4a3.4 3.4 0 1 1 0 6.8A3.4 3.4 0 0 1 9 4z" +
+    "M16.6 5.6a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6z" +
+    "M9 12.4c3.5 0 6.2 1.9 6.2 4.3V20H2.8v-3.3c0-2.4 2.7-4.3 6.2-4.3z" +
+    "M22 20h-4.6v-3.6c0-1.4-.5-2.7-1.4-3.7 3.3-.3 6 1.2 6 3.5V20z",
+  trophy:
+    "M6.5 3h11v4.5a5.5 5.5 0 0 1-11 0V3z" +
+    // Handles meet the cup edge-to-edge (x=6.5 / x=17.5): touching, never
+    // overlapping — an overlap would even-odd itself into a hole.
+    "M6.5 4.6H3.6a1.1 1.1 0 0 0-1.1 1.1c0 2.2 1.5 4.1 3.6 4.6l-.5-2.2a2.3 2.3 0 0 1-1-1.5h1.9V4.6z" +
+    "M17.5 4.6h2.9a1.1 1.1 0 0 1 1.1 1.1c0 2.2-1.5 4.1-3.6 4.6l.5-2.2a2.3 2.3 0 0 0 1-1.5h-1.9V4.6z" +
+    "M10.9 13.6h2.2v3.9h3.3a1 1 0 0 1 1 1V21H6.6v-2.5a1 1 0 0 1 1-1h3.3v-3.9z",
+  lightbulb:
+    "M12 2a6.6 6.6 0 0 0-3.7 12.1c.6.4.9 1 .9 1.7v.3h5.6v-.3c0-.7.3-1.3.9-1.7A6.6 6.6 0 0 0 12 2z" +
+    "M9.2 17.3h5.6V19H9.2z" +
+    "M9.8 20.2h4.4a2.2 2.2 0 0 1-4.4 0z",
+  phone:
+    "M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.2c1.1.4 2.3.6 3.6.6a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.2 2.5.6 3.6a1 1 0 0 1-.3 1l-2.2 2.2z",
+  mail:
+    "M2.6 5h18.8a1.2 1.2 0 0 1 1.2 1.2v11.6a1.2 1.2 0 0 1-1.2 1.2H2.6a1.2 1.2 0 0 1-1.2-1.2V6.2A1.2 1.2 0 0 1 2.6 5z" +
+    "M4.6 7.2h14.8L12 12.6 4.6 7.2z",
+  menu: "M3 5.6h18v2.2H3zM3 10.9h18v2.2H3zM3 16.2h18v2.2H3z",
+  close:
+    "M5.6 4 12 10.4 18.4 4 20 5.6 13.6 12 20 18.4 18.4 20 12 13.6 5.6 20 4 18.4 10.4 12 4 5.6z",
+  check: "M9.6 16.4 4.9 11.7l1.7-1.7 3 3 7.8-7.8 1.7 1.7z",
+  "chevron-right": "M9.1 4.6 16.5 12l-7.4 7.4-1.7-1.7L13.1 12 7.4 6.3z",
+};
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  fill-rule="evenodd"
+  xmlns="http://www.w3.org/2000/svg"
+  role={label ? "img" : undefined}
+  aria-hidden={label ? undefined : "true"}
+  focusable="false"
+  {...rest}
+>
+  {label && <title>{label}</title>}
+  <path d={paths[name]}></path>
+</svg>

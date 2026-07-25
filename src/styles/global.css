@@ -32,3 +32,60 @@
   --shadow-elevation-m: 0 6px 10px -2px #3236401F;
   --shadow-elevation-1: 0 16px 20px #0000000D, 0 8px 12px #0000001A, 0 1px 4px #00000026;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Everything above this line is a byte-for-byte copy of PLAN §4 and must stay
+   untouched (see DECISIONS.md D1.1 — the file is in .prettierignore so the
+   uppercase hexes and aligned comments survive `pnpm format`).
+
+   Below: Phase-3 global groundwork — focus rings and the boxed content column.
+   Component styling lives in the components' own scoped <style> blocks.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  /* Focus-visible (PLAN §4 / §4.5): 2px ring, 2px offset. `currentColor` on
+     light surfaces; `.on-dark` scopes (navy header/footer/stat band) override
+     the ring to the pale tint #F2FAFC. */
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  .on-dark :focus-visible,
+  .on-dark:focus-visible {
+    outline-color: var(--color-tint-pale);
+  }
+
+  /* In-page anchors must clear the sticky navy nav bar. */
+  html {
+    scroll-padding-top: 88px;
+  }
+
+  body {
+    margin: 0;
+    background-color: #ffffff;
+    color: var(--color-deep-blue);
+  }
+}
+
+@layer components {
+  /* Boxed content column — 1248px of content with 96px side margins at 1440
+     (UX-REPORT §2.1); 40px on tablet, 24px on phones. */
+  .container-boxed {
+    width: 100%;
+    max-width: calc(1248px + 3rem);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .container-boxed {
+      max-width: calc(1248px + 5rem);
+      padding-inline: 2.5rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .container-boxed {
+      max-width: calc(1248px + 12rem);
+      padding-inline: 6rem;
+    }
+  }
+}

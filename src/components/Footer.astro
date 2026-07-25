@@ -1,0 +1,201 @@
+---
+/**
+ * Footer — full-height destination (PLAN §7, UX-REPORT §6; live ratio 1.05×
+ * viewport). Navy full-bleed, content boxed to 1248px, in seven layers:
+ *
+ *   1. nav as white pill buttons        5. legal bar (#B9E1EF)
+ *   2. large vertical gap               6. giant cyan wordmark band
+ *   3. utility row (wordmark + contacts) 7. tagline (#F2FAFC, 15px)
+ *   4. hairline divider (#F2FAFC)
+ *
+ * Layer 3's right-hand social icons are omitted: the client has supplied no
+ * social profiles (PLAN §9 open item).
+ */
+import { Image } from "astro:assets";
+import logoCyan from "../assets/logo-cyan.png";
+import logoWhite from "../assets/logo-white.png";
+import Button from "./Button.astro";
+import Icon from "./Icon.astro";
+import { contact, footer, navItems, ui } from "../data/site";
+---
+
+<footer class="site-footer on-dark">
+  <div class="container-boxed site-footer__inner">
+    <!-- 1 — nav as white pill buttons -->
+    <nav aria-label={ui.footerNavLabel}>
+      <ul class="site-footer__nav" role="list">
+        {
+          navItems.map((item) => (
+            <li class="site-footer__nav-item">
+              <Button variant="white" href={item.href} arrow={false}>
+                {item.label}
+              </Button>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- 2 — large vertical gap (see .site-footer__utility margin) -->
+
+    <!-- 3 — utility row -->
+    <div class="site-footer__utility">
+      {
+        /* alt is the wordmark's literal content ("ASSA ABLOY"), not the site name —
+          the org's full name is carried by the legal bar below. */
+      }
+      <div class="site-footer__mark">
+        <Image src={logoWhite} alt="ASSA ABLOY" width={178} densities={[1, 2]} />
+      </div>
+      <ul class="site-footer__contact" role="list" aria-label={ui.contactLabel}>
+        <li>
+          <a class="site-footer__contact-link" href={contact.phoneHref}>
+            <Icon name="phone" size={16} />{contact.phone}
+          </a>
+        </li>
+        <li>
+          <a class="site-footer__contact-link" href={contact.emailHref}>
+            <Icon name="mail" size={16} />{contact.email}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 4 — hairline divider -->
+    <hr class="site-footer__divider" />
+
+    <!-- 5 — legal bar -->
+    <p class="site-footer__legal">{footer.legal}</p>
+
+    <!-- 6 — giant cyan wordmark: the single most cyan moment on the site -->
+    <div class="site-footer__wordmark">
+      <Image src={logoCyan} alt="" widths={[640, 1183]} sizes="(min-width: 1440px) 1248px, 100vw" />
+    </div>
+
+    <!-- 7 — tagline -->
+    <p class="site-footer__tagline">{footer.tagline}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-deep-blue);
+  }
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    padding-block: 64px;
+  }
+
+  /* 1 — white pills; stack full-width on mobile (UX-REPORT §5). */
+  .site-footer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-footer__nav-item {
+    display: flex;
+  }
+  .site-footer__nav-item :global(.btn) {
+    width: 100%;
+  }
+
+  /* 3 — utility row. Social icons intentionally absent (PLAN §9). */
+  .site-footer__utility {
+    margin-top: 64px;
+    /* Absorbs the slack on tall viewports so the footer reads as a destination. */
+    margin-bottom: auto;
+    padding-bottom: 64px;
+  }
+  .site-footer__mark :global(img) {
+    display: block;
+    width: 178px;
+    height: auto;
+  }
+  .site-footer__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-footer__contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 15px;
+    color: var(--color-tint-pale);
+    text-decoration: none;
+  }
+  .site-footer__contact-link:hover {
+    color: var(--color-cyan);
+  }
+
+  /* 4 — hairline, boxed width */
+  .site-footer__divider {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--color-tint-pale);
+  }
+
+  /* 5 — legal */
+  .site-footer__legal {
+    margin: 24px 0 0;
+    font-size: 16px; /* UX-REPORT §6 layer 5 measured ~16px */
+    color: var(--color-cyan-pressed);
+  }
+
+  /* 6 — giant cyan wordmark band */
+  .site-footer__wordmark {
+    margin-top: 48px;
+  }
+  .site-footer__wordmark :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* 7 — tagline */
+  .site-footer__tagline {
+    max-width: 70ch;
+    margin: 24px 0 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-tint-pale);
+  }
+
+  @media (min-width: 768px) {
+    .site-footer__inner {
+      padding-block: 80px;
+    }
+    .site-footer__nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .site-footer__nav-item {
+      min-width: 187px;
+    }
+    .site-footer__utility {
+      margin-top: 96px;
+      padding-bottom: 96px;
+    }
+    .site-footer__contact {
+      flex-direction: row;
+      gap: 32px;
+    }
+  }
+
+  /* Full-height destination on desktop (live ratio 1.05× viewport). */
+  @media (min-width: 1024px) {
+    .site-footer__inner {
+      min-height: calc(90vh - 160px);
+    }
+  }
+</style>

@@ -1,5 +1,8 @@
 ---
 import { Font } from "astro:assets";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { ui } from "../data/site";
 import "../styles/global.css";
 
 interface Props {
@@ -59,21 +62,17 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <Font cssVariable="--font-georgian" preload />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">გამოტოვეთ და გადადით მთავარ შინაარსზე</a>
+    <a class="skip-link" href="#main-content">{ui.skipToContent}</a>
 
-    <!-- Phase 3 replaces this placeholder with <Header /> (cyan strip + navy nav). -->
-    <header>
-      <p class="header-placeholder">ASSA ABLOY Georgia</p>
-    </header>
+    <Header />
 
-    <main id="main-content">
+    <!-- tabindex="-1" so the skip link actually moves focus (not just the
+         sequential focus point) in Safari and older AT. -->
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
 
-    <!-- Phase 3 replaces this placeholder with <Footer /> (destination footer). -->
-    <footer>
-      <p class="footer-placeholder">© 2026 ASSA ABLOY Georgia</p>
-    </footer>
+    <Footer />
   </body>
 </html>
 
@@ -98,14 +97,5 @@ const ogImageURL = new URL(ogImage, Astro.site);
     /* Focus ring on a navy surface uses the on-dark color (PLAN §4). */
     outline: 2px solid var(--color-tint-pale);
     outline-offset: 2px;
-  }
-
-  /* Phase-1 landmark placeholders — replaced by real components in Phase 3. */
-  .header-placeholder,
-  .footer-placeholder {
-    margin: 0;
-    padding: 1rem 1.5rem;
-    color: var(--color-text-secondary);
-    font-size: 0.8125rem;
   }
 </style>
