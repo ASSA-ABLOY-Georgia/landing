@@ -7,8 +7,8 @@
  * Tier 2: navy nav bar — 4 links, `aria-current="page"` on the active one,
  *         sticky at the top of the viewport.
  * Mobile (<768px): the two tiers merge into ONE cyan bar (☰ მენიუ · wordmark);
- *         the nav becomes a full-width navy panel with ~64px rows and the cyan
- *         utility links sit below it.
+ *         the nav becomes a full-screen navy OVERLAY with ~64px rows and the
+ *         cyan utility links pinned to its bottom edge.
  *
  * The mobile-nav toggle script is progressive enhancement: the collapse only
  * applies under the `.js` root class, so with JS disabled the panel is a plain
@@ -32,31 +32,38 @@ const pathname = Astro.url.pathname;
   <!-- Tier 1 — cyan utility strip (mobile: the single merged bar). -->
   <div class="header__strip">
     <div class="container-boxed header__strip-inner">
+      {
+        /* Three CSS bars, not the `menu`/`close` icons: two SVGs can only be
+          swapped, bars can morph. Both labels ship and are cross-faded, so the
+          button is always as wide as „დახურვა" and opening the menu resizes
+          nothing else in the bar. */
+      }
       <button
         class="header__toggle"
         id="nav-toggle"
         type="button"
         aria-expanded="false"
         aria-controls="site-nav"
-        data-label-open={ui.menuOpen}
-        data-label-close={ui.menuClose}
       >
-        <span class="header__toggle-glyph header__toggle-glyph--menu">
-          <Icon name="menu" size={24} />
+        <span class="header__toggle-icon">
+          <span class="header__toggle-bar header__toggle-bar--top"></span>
+          <span class="header__toggle-bar header__toggle-bar--mid"></span>
+          <span class="header__toggle-bar header__toggle-bar--bottom"></span>
         </span>
-        <span class="header__toggle-glyph header__toggle-glyph--close">
-          <Icon name="close" size={24} />
+        <span class="header__toggle-labels">
+          <span class="header__toggle-label header__toggle-label--open">{ui.menuOpen}</span>
+          <span class="header__toggle-label header__toggle-label--close">{ui.menuClose}</span>
         </span>
-        <span class="header__toggle-label" id="nav-toggle-label">{ui.menuOpen}</span>
       </button>
 
       <a class="header__brand" href="/">
         {
-          /* The brand mark renders at 36px tall (231w) below 768px and 52px tall
-            (333w) above. `densities` would emit viewport-blind 1x/2x descriptors,
-            so a DPR-2 phone downloaded the 666w desktop asset for a 231px box.
-            `widths` + `sizes` lets the browser weigh viewport AND DPR, so mobile
-            takes 462w and only desktop takes 666w. */
+          /* Up to 36px tall (231w — the ceiling of the mobile clamp below) under
+            768px, 52px (333w) above. `densities` emits viewport-blind 1x/2x
+            descriptors, so a DPR-2 phone took the 666w desktop asset for a 231px
+            box; `widths` + `sizes` lets the browser weigh viewport AND DPR. The
+            231px hint is the mark at the widest phone, so it can only
+            over-serve. */
         }
         <Image
           src={logoDeepBlue}
@@ -124,17 +131,33 @@ const pathname = Astro.url.pathname;
   </div>
 </header>
 
-{/* Mobile-nav toggle. */}
+{
+  /* Mobile-nav toggle. The script owns state only — `data-nav-open` drives the
+    panel, the glyph morph and the label cross-fade from CSS. The open panel
+    covers the page, so it also freezes the document behind it (`html.nav-open`)
+    and marks the covered landmarks `inert`. */
+}
 <script is:inline>
   (function () {
     var header = document.getElementById("site-header");
     var toggle = document.getElementById("nav-toggle");
-    var label = document.getElementById("nav-toggle-label");
-    if (!header || !toggle || !label) return;
+    if (!header || !toggle) return;
+    // Looked up per toggle: this script runs inside <header>, before the parser
+    // has reached either landmark.
+    function setInert(open) {
+      var covered = [
+        document.getElementById("main-content"),
+        document.getElementById("site-footer"),
+      ];
+      for (var i = 0; i < covered.length; i++) {
+        if (covered[i]) covered[i].inert = open;
+      }
+    }
     function setOpen(open) {
       header.setAttribute("data-nav-open", open ? "true" : "false");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      label.textContent = open ? toggle.dataset.labelClose : toggle.dataset.labelOpen;
+      document.documentElement.classList.toggle("nav-open", open);
+      setInert(open);
     }
     toggle.addEventListener("click", function () {
       setOpen(toggle.getAttribute("aria-expanded") !== "true");
@@ -175,6 +198,13 @@ const pathname = Astro.url.pathname;
   :global(html.js) .site-header[data-header-hidden="true"] {
     transform: translateY(-100%);
   }
+  /* A transformed ancestor would become the containing block of the fixed panel
+     below, so the bar must not be mid-slide when the menu opens. The reveal
+     script already pins it visible; this cancels a slide still in flight. */
+  :global(html.js) .site-header[data-nav-open="true"] {
+    transform: none;
+    transition: none;
+  }
 
   /* ── Tier 1 — cyan utility strip ─────────────────────────────────────────── */
   .header__strip {
@@ -191,10 +221,18 @@ const pathname = Astro.url.pathname;
   .header__brand {
     display: inline-flex;
     align-items: center;
+    /* The mark is never what gives way — as a shrinkable item it was squeezed by
+       the toggle's wider open-state label on any phone under ~408px. */
+    flex-shrink: 0;
   }
   .header__brand :global(img) {
-    height: 36px;
+    /* Fluid to its full 36px at ~468px: a fixed 36px (231w) leaves a phone too
+       little room for the toggle beside it. Size follows the SCREEN, never the
+       menu's state. `max-width: none` drops preflight's `max-width: 100%`, which
+       against a fixed height squashes the mark instead of scaling it. */
+    height: clamp(28px, 7.7vw, 36px);
     width: auto;
+    max-width: none;
   }
 
   .header__utility {
@@ -233,15 +271,77 @@ const pathname = Astro.url.pathname;
     border: 0;
     cursor: pointer;
   }
-  .header__toggle-glyph {
-    display: inline-flex;
+
+  /* ☰ → ✕ morph, on the 24px frame and bar weight of the `menu` glyph. Two
+     stages: the outer bars converge, THEN rotate into the cross (closing
+     replays it backwards). Separate stages need separate timelines, hence the
+     individual `translate`/`rotate` — one `transform` carries one delay. */
+  .header__toggle-icon {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 24px;
+    height: 24px;
   }
-  .header__toggle-glyph--close,
-  .site-header[data-nav-open="true"] .header__toggle-glyph--menu {
-    display: none;
+  .header__toggle-bar {
+    position: absolute;
+    left: 3px;
+    top: calc(50% - 1px);
+    width: 18px;
+    height: 2px;
+    background-color: currentColor;
+    transition:
+      translate 0.16s ease 0.16s,
+      rotate 0.16s ease,
+      opacity 0.16s ease 0.12s;
   }
-  .site-header[data-nav-open="true"] .header__toggle-glyph--close {
-    display: inline-flex;
+  .header__toggle-bar--top {
+    translate: 0 -5px;
+  }
+  .header__toggle-bar--bottom {
+    translate: 0 5px;
+  }
+  .site-header[data-nav-open="true"] .header__toggle-bar {
+    translate: 0 0;
+    transition:
+      translate 0.16s ease,
+      rotate 0.16s ease 0.16s,
+      opacity 0.12s ease;
+  }
+  .site-header[data-nav-open="true"] .header__toggle-bar--top {
+    rotate: 45deg;
+  }
+  .site-header[data-nav-open="true"] .header__toggle-bar--bottom {
+    rotate: -45deg;
+  }
+  /* The middle bar has nowhere to go — it fades while the others converge. */
+  .site-header[data-nav-open="true"] .header__toggle-bar--mid {
+    opacity: 0;
+  }
+
+  /* Both labels share one grid cell, so the bar's geometry never changes. */
+  .header__toggle-labels {
+    display: grid;
+    align-items: center;
+  }
+  .header__toggle-label {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.18s ease,
+      visibility 0s;
+  }
+  .header__toggle-label--close,
+  .site-header[data-nav-open="true"] .header__toggle-label--open {
+    opacity: 0;
+    /* Hidden, not just transparent — an invisible label must not join the
+       button's accessible name. It waits out the fade. */
+    visibility: hidden;
+    transition-delay: 0s, 0.18s;
+  }
+  .site-header[data-nav-open="true"] .header__toggle-label--close {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s, 0s;
   }
 
   /* ── Tier 2 — navy nav ───────────────────────────────────────────────────── */
@@ -307,16 +407,79 @@ const pathname = Astro.url.pathname;
     :global(html.js) .header__toggle {
       display: inline-flex;
     }
+
+    /* An OVERLAY, not a block in the header's flow: in flow it pushed the bar
+       and the whole document down as it opened, and stopped short of the bottom
+       of the screen. Out of flow the header also stays exactly as tall as the
+       strip — the number BaseLayout measures for the hide/reveal.
+
+       `bottom: 0`, not a `100dvh` calc: a fixed box already tracks the layout
+       viewport, so it follows a mobile URL bar with no re-measuring.
+
+       Closed it is faded out and lifted 8px, with `visibility` deferred to the
+       end of the fade to take the rows out of the tab order. */
     :global(html.js) .header__panel {
-      display: none;
+      position: fixed;
+      top: var(--header-strip-height);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      /* Navy under everything the nav rows and the utility block do not cover,
+         so the overlay is opaque edge to edge at any screen height. */
+      background-color: var(--color-deep-blue);
+      overflow-y: auto;
+      overscroll-behavior: contain; /* no scroll chaining to the page behind */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0s linear 0.2s;
     }
     :global(html.js) .site-header[data-nav-open="true"] .header__panel {
-      display: block;
-      /* Keep an open panel inside the viewport on short screens (landscape
-         phones) so every row stays scrollable and reachable by keyboard. */
-      max-height: calc(100vh - var(--header-strip-height));
-      max-height: calc(100dvh - var(--header-strip-height));
-      overflow-y: auto;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity 0.22s ease,
+        transform 0.26s cubic-bezier(0.22, 0.61, 0.36, 1),
+        visibility 0s;
+    }
+    /* Utility links ride the bottom edge, as the live site's ticker does. `auto`
+       collapses to 0 when the rows overflow, so a landscape phone just scrolls. */
+    :global(html.js) .header__panel-utility {
+      margin-top: auto;
+    }
+
+    /* Freeze the page behind the overlay — on BODY, never on the root. A root
+       with `overflow: hidden` stops being the scrollport its descendants stick
+       to, and the bar would drop off-screen the moment the menu was opened below
+       the fold (measured: `top` −59px → −900px at scroll 900). Body's overflow
+       propagates to the viewport just the same, and sticky survives. */
+    :global(html.js.nav-open) body {
+      overflow: hidden;
+    }
+  }
+
+  /* Under the 360px design floor the wordmark and a labelled toggle cannot both
+     fit. The label gives way — clipped, not `display: none`, so it is still the
+     button's accessible name — and the target stays 44px. */
+  @media not all and (min-width: 360px) {
+    .header__toggle {
+      position: relative;
+      min-width: 44px;
+      padding-right: 0;
+    }
+    .header__toggle-labels {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
   }
 
@@ -366,6 +529,18 @@ const pathname = Astro.url.pathname;
       transition: none;
     }
     :global(html.js) .site-header[data-header-hidden="true"] {
+      transform: none;
+    }
+    /* The panel, the morph and the cross-fade still HAPPEN — they just arrive
+       instead of animating. The valueless `[data-nav-open]` matches either state
+       at the specificity of the `="true"` rules above, so one declaration covers
+       both directions; `transform: none` drops the closed state's 8px lift. */
+    :global(html.js) .site-header[data-nav-open] .header__panel,
+    .site-header[data-nav-open] .header__toggle-bar,
+    .site-header[data-nav-open] .header__toggle-label {
+      transition: none;
+    }
+    :global(html.js) .header__panel {
       transform: none;
     }
   }
