@@ -69,7 +69,7 @@ export const documents: SiteDocument[] = [
     viewable: true,
   },
   {
-    title: "ფოლადის შესასვლელი კარები — პრეზენტაცია",
+    title: "კარების კატალოგი",
     body: "კონსტრუქცია, ზომები, ზედაპირის დამუშავება და ჩაკეტვის სისტემები — ტექნიკური მიმოხილვა.",
     href: "/catalogue/assa-abloy-doors-presentation.pptx",
     cover: presentationCover,
