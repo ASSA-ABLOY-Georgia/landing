@@ -66,10 +66,29 @@ const ogImageURL = new URL(ogImage, Astro.site);
 
     <Header />
 
-    <!-- tabindex="-1" so the skip link actually moves focus (not just the
-         sequential focus point) in Safari and older AT. -->
-    <main id="main-content" tabindex="-1">
-      <slot />
+    <!--
+      The skip link's target is the DIV, not <main>.
+
+      `tabindex="-1"` on the target is what actually moves focus: measured in
+      Chrome with the attribute removed, activating the skip link leaves
+      `document.activeElement` on <body> and only sets the sequential focus
+      point — the next Tab lands inside main, but nothing is focused, so AT
+      announces nothing on activation. Safari and older AT are weaker still.
+
+      It sits on a wrapper because Astro's `a11y-no-noninteractive-tabindex`
+      audit flags `[tabindex]` on <main> — its selector is
+      `[tabindex]:not([role="tabpanel"])`, which does not exempt `-1` even
+      though the rule's own description recommends exactly that value, and its
+      allowlist is `div`/`span` only. Focus still lands INSIDE the main
+      landmark, so entering it is still announced; nothing is lost.
+
+      <main> keeps its own id for the mobile nav's `inert` toggle, which has to
+      reach the landmark itself (Header.astro).
+    -->
+    <main id="main-region">
+      <div id="main-content" tabindex="-1">
+        <slot />
+      </div>
     </main>
 
     <Footer />

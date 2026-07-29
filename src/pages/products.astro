@@ -1,7 +1,7 @@
 ---
 /**
  * Products (`/products`) — white two-column PageHero → category grid in the
- * solutions-card pattern → catalogue section (warm-gray) → closing CTA band.
+ * solutions-card pattern → documents band (warm-gray) → closing CTA band.
  *
  * The six category cards reuse the solutions data from Home, and so does the
  * grid's heading „ჩვენი გადაწყვეტილებები".
@@ -10,27 +10,32 @@
  * Card deliberately stays inert rather than advertising a click that does
  * nothing.
  *
- * Catalogue: cover image + size label + two buttons, nothing embedded, nothing
- * auto-loading. „~24 MB" is the measured size of the optimized PDF (23.92 MiB).
+ * Documents band: the catalogue section of PLAN §6 generalised from one file to
+ * a list, because there are now three (2024 catalogue, doors technical catalog,
+ * doors presentation). One white row per document on the warm-gray band —
+ * cover thumbnail, title + `format · language? · extent · size` meta, one-line
+ * body, and the row's own actions. Nothing in the band is embedded and nothing
+ * auto-loads: the three covers are the only bytes it costs, and the files
+ * themselves are fetched only on a click. See `src/data/documents.ts`.
  */
-import catalogueCover from "../assets/catalogue-cover.jpg";
 import { Image } from "astro:assets";
 import Button from "../components/Button.astro";
 import Card from "../components/Card.astro";
 import PageHero from "../components/PageHero.astro";
 import SectionHeading from "../components/SectionHeading.astro";
+import { documents } from "../data/documents";
 import { solutions } from "../data/solutions";
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const cataloguePDF = "/catalogue/assa-abloy-catalogue-2024.pdf";
 
 /* CONTENT.md → Products. Kept as string literals so Prettier's reflow cannot
    split the byte-exact passages across source lines. */
 const copy = {
   heroIntro:
     "გაეცანით ASSA ABLOY-ის პროდუქტების სრულ პორტფელს — მექანიკური საკეტებიდან ციფრული წვდომის სისტემებამდე. თითოეული პროდუქტი შეესაბამება საერთაშორისო ხარისხისა და უსაფრთხოების სტანდარტებს.",
-  catalogue:
-    "ჩამოტვირთეთ ან დაათვალიერეთ ASSA ABLOY-ის პროდუქტების სრული კატალოგი — დეტალური ინფორმაცია სერიების, სპეციფიკაციებისა და გამოყენების სფეროების შესახებ.",
+  documentsHeading: "კატალოგები და დოკუმენტაცია",
+  documents: "ყველა კატალოგი და ტექნიკური დოკუმენტაცია ერთ ადგილას.",
+  view: "ნახვა",
+  download: "გადმოწერა",
   consulting:
     "დაგვიკავშირდით — ჩვენი გუნდი დაგეხმარებათ თქვენი პროექტისთვის ოპტიმალური გადაწყვეტილების შერჩევაში.",
 };
@@ -38,7 +43,7 @@ const copy = {
 
 <BaseLayout
   title="პროდუქტები — ASSA ABLOY Georgia"
-  description="საკეტები, ციფრული წვდომა, Access Control, ავტომატური და უსაფრთხოების კარები — სრული პორტფელი და 2024 წლის კატალოგი."
+  description="საკეტები, ციფრული წვდომა, Access Control, ავტომატური და უსაფრთხოების კარები — სრული პორტფელი, კატალოგები და ტექნიკური დოკუმენტაცია."
 >
   <PageHero title="პროდუქტები">
     <p>{copy.heroIntro}</p>
@@ -46,8 +51,8 @@ const copy = {
 
   {
     /* This and the two bands below carry `data-reveal`: heading first, then the
-      grid. In the catalogue band the cover image is the first child, so the
-      image leads and the copy + PDF buttons follow. */
+      grid. In the documents band the heading leads, the intro follows, and the
+      whole list rises as one unit rather than row by row. */
   }
   <section class="section">
     <div class="container-boxed" data-reveal>
@@ -66,32 +71,90 @@ const copy = {
     </div>
   </section>
 
-  {/* Catalogue */}
+  {/* Documents */}
   <section class="section section--warm">
-    <div class="container-boxed catalogue" data-reveal>
-      {
-        /* Decorative: the cover repeats the heading beside it, so an alt text
-          would only duplicate „პროდუქტების კატალოგი 2024". */
-      }
-      <div class="catalogue__cover">
-        <Image src={catalogueCover} alt="" width={420} densities={[1, 2]} />
-      </div>
-      <div class="catalogue__body">
-        <SectionHeading title="პროდუქტების კატალოგი 2024" />
-        <p class="catalogue__text">{copy.catalogue}</p>
-        <p class="catalogue__size">PDF · ~24 MB</p>
-        <div class="catalogue__actions">
-          {
-            /* `external` is the component's new-tab path: it swaps the → for the
-              ⧉ glyph — the signal for "this leaves what you are looking at",
-              which a new tab is even for a same-origin file — drops the arrow
-              slide, emits target="_blank" rel="noopener", and gives the glyph
-              „იხსნება ახალ ფანჯარაში" as its text alternative. */
-          }
-          <Button href={cataloguePDF} external>კატალოგის ნახვა</Button>
-          <Button variant="white" href={cataloguePDF} download>გადმოწერა</Button>
-        </div>
-      </div>
+    <div class="container-boxed" data-reveal>
+      <SectionHeading title={copy.documentsHeading} />
+      <p class="band-body measure">{copy.documents}</p>
+      <ul class="doc-list" role="list">
+        {
+          documents.map((doc) => (
+            /* The grid goes on an inner <div>, never on the <li>: an <li> whose
+              display is not `list-item` loses its listitem role in WebKit, and
+              the `.category-grid` above solves it the same way. */
+            <li>
+              <div class="doc">
+                {/* Decorative: every cover is the document's own title page, so
+                    an alt text could only repeat the „doc__title" beside it. */}
+                <div class="doc__cover">
+                  {/* `widths` + `sizes`, not `densities`: the mat is three
+                      different sizes (76 / 116 / 132), and a density descriptor
+                      is viewport-blind — it would ship the 2×-of-132 file to a
+                      360px phone whose box is 76 (the D6.3 trap). The list is
+                      each breakpoint at 1× and 2×.
+                      `width` is set as well because with `widths` alone Astro
+                      points the `src` fallback at the untouched 1000px original
+                      (51.8 kB); bounding it puts the 264 variant there. */}
+                  <Image
+                    src={doc.cover}
+                    alt=""
+                    width={264}
+                    widths={[76, 116, 132, 152, 232, 264]}
+                    sizes="(min-width: 1024px) 132px, (min-width: 640px) 116px, 76px"
+                  />
+                </div>
+                <div class="doc__head">
+                  <h3 class="doc__title">{doc.title}</h3>
+                  {/* Each part is its own nowrap span and every „ · " is a bare
+                      text node between them — so the line may break at a
+                      separator and nowhere else. At 360px the meta needs two
+                      lines, and unconstrained it breaks mid-value („~24" /
+                      „MB"). `language` is absent on Georgian documents. */}
+                  <p class="doc__meta">
+                    {[doc.format, doc.language, doc.extent, doc.size]
+                      .filter(Boolean)
+                      .map((part, i) => (
+                        <Fragment>
+                          {i > 0 && " · "}
+                          <span>{part}</span>
+                        </Fragment>
+                      ))}
+                  </p>
+                </div>
+                <p class="doc__desc">{doc.body}</p>
+                {/* Three rows repeat the same two labels, so each button carries
+                  the document title in a visually-hidden span — otherwise a
+                  screen reader's link list reads „ნახვა" three times over with
+                  nothing to tell them apart. The span sits INSIDE the label
+                  rather than becoming an aria-label, which would override the
+                  ⧉ glyph's „იხსნება ახალ ფანჯარაში" title along with it.
+
+                    `external` is the component's new-tab path: it swaps the → for
+                    the ⧉ glyph — the signal for "this leaves what you are looking
+                    at", which a new tab is even for a same-origin file — drops the
+                    arrow slide, and emits target="_blank" rel="noopener".
+
+                    „გადმოწერა" is the white variant in EVERY row, including the
+                    row where it is the only action: one label may not appear in
+                    two weights, or the cyan column would read „⧉ ⧉ →" — three
+                    primaries doing two different things. */}
+                <div class="doc__actions">
+                  {doc.viewable && (
+                    <Button href={doc.href} external>
+                      {copy.view}
+                      <span class="visually-hidden"> — {doc.title}</span>
+                    </Button>
+                  )}
+                  <Button variant="white" href={doc.href} download>
+                    {copy.download}
+                    <span class="visually-hidden"> — {doc.title}</span>
+                  </Button>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -120,39 +183,118 @@ const copy = {
     height: 100%;
   }
 
-  /* Catalogue: cover left, copy right (stacked on phones). */
-  .catalogue {
+  /* ── Documents ────────────────────────────────────────────────────────────
+     One row per document. The rows are WHITE on the warm-gray band, the
+     inverse of the Card component, which is warm-gray on white: at 4% apart,
+     a warm-gray row on a warm-gray band would not read as a surface at all.
+     Elevation, not a border, carries the edge — the same move the old single
+     catalogue cover made with `--shadow-elevation-m`, one step softer because
+     there are three of them now.
+
+     Deliberately NO hover state: the row is not a link — its two buttons are —
+     and tinting a container that does nothing on click is a false affordance
+     (the same rule `.card--linked` encodes). */
+  .doc-list {
     display: grid;
-    gap: 40px;
-  }
-  .catalogue__cover :global(img) {
-    display: block;
-    width: 100%;
-    max-width: 420px;
-    height: auto;
-    border-radius: var(--radius-container);
-    box-shadow: var(--shadow-elevation-m);
+    gap: 16px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .catalogue__text {
-    margin: 40px 0 0;
-    font-size: var(--text-intro);
-    line-height: 1.55;
+  .doc {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-areas:
+      "cover head"
+      "desc  desc"
+      "act   act";
+    column-gap: 16px;
+    row-gap: 16px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: var(--radius-container);
+    box-shadow: var(--shadow-elevation-s);
+  }
+
+  /* A fixed 3:4 mat, with the sheet CONTAINED inside it rather than cropped to
+     fill: the covers are two portrait A4 pages and one 16:9 slide, and cropping
+     a slide to portrait would cut the wordmark in half. Contained, each keeps
+     its true proportions and every row still starts its text at the same x.
+     The sheet sits at the TOP of the mat, not its middle, so the landscape one
+     shares a top edge with the other two — and with the title beside it. */
+  .doc__cover {
+    display: flex;
+    grid-area: cover;
+    align-self: start;
+    align-items: flex-start;
+    justify-content: center;
+    aspect-ratio: 3 / 4;
+  }
+  /* `width/height: auto` overrides the width/height attributes Astro emits, so
+     the two max- bounds do the fitting and the intrinsic ratio is preserved. */
+  .doc__cover :global(img) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+
+  .doc__head {
+    grid-area: head;
+    align-self: center;
+  }
+  .doc__title {
+    margin: 0;
+    font-size: var(--text-card-title);
+    font-weight: 500;
+    line-height: 1.35;
     color: var(--color-deep-blue);
   }
-  /* Size label — the "PDF · ~24 MB" meta line. */
-  .catalogue__size {
-    margin: 16px 0 0;
+  /* Meta line — „PDF · 45 გვერდი · ~7 MB". The format leads because it is the
+     one part that changes what the buttons below can offer. */
+  .doc__meta {
+    margin: 8px 0 0;
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0.06em;
     color: var(--color-text-secondary);
   }
-  .catalogue__actions {
+  .doc__meta span {
+    white-space: nowrap;
+  }
+
+  .doc__desc {
+    grid-area: desc;
+    max-width: 60ch;
+    margin: 0;
+    line-height: 1.55;
+    color: var(--color-deep-blue);
+  }
+
+  .doc__actions {
     display: flex;
     flex-direction: column;
+    grid-area: act;
     gap: 12px;
-    margin-top: 24px;
+  }
+  /* The two variants ship at different heights (44px primary, 48px white) —
+     fine when they sit apart, visibly uneven when they are stacked at equal
+     width. Levelling up to 48 keeps both above the 44px touch target. */
+  .doc__actions :global(.btn) {
+    min-height: 48px;
+  }
+  /* D6.7 measured `.btn--white`'s `#F7F6F5` border against every band it ships
+     on and found white the worst case — 1.08:1, "does not read as a button" —
+     with `--color-deep-blue` the one candidate that works (16.39:1). These rows
+     ARE white, and in the `.pptx` row this button is the only control there is,
+     so the fix D6.7 left as a site-wide client decision is applied here, where
+     the ground makes it necessary. Hover is untouched: the pale-cyan fill
+     bounds the button on its own. */
+  .doc__actions :global(.btn--white) {
+    border-color: var(--color-deep-blue);
   }
 
   .band-body {
@@ -164,12 +306,38 @@ const copy = {
   .band-body + :global(.btn) {
     margin-top: 40px;
   }
+  /* The documents band puts the list, not a CTA, after the intro. */
+  .band-body + .doc-list {
+    margin-top: 24px;
+  }
 
   @media (min-width: 640px) {
     .category-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .catalogue__actions {
+
+    .doc-list {
+      gap: 24px;
+    }
+    /* The cover moves out to a full-height first column; head, body and actions
+       stack against it. */
+    .doc {
+      grid-template-columns: 116px minmax(0, 1fr);
+      grid-template-areas:
+        "cover head"
+        "cover desc"
+        "cover act";
+      column-gap: 28px;
+      padding: 28px;
+    }
+    /* From here up the cover owns a full-height column, so the head no longer
+       has anything to centre against — start, or a short head floats down its
+       (cover-stretched) grid row and the three titles land on three different
+       baselines. */
+    .doc__head {
+      align-self: start;
+    }
+    .doc__actions {
       flex-direction: row;
       flex-wrap: wrap;
       align-items: center;
@@ -180,10 +348,29 @@ const copy = {
     .category-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .catalogue {
-      grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
-      gap: 80px;
-      align-items: start;
+
+    /* Third column: an action rail of equal-width buttons. Three rows then
+       present their actions at the same x, which is the whole point of a list —
+       you scan down one column, not across three different line endings.
+       `align-self: start` is what makes that true on the y axis too: centred, a
+       one-button rail sits 30px below a two-button one and the column stops
+       being a column. */
+    .doc {
+      grid-template-columns: 132px minmax(0, 1fr) 200px;
+      grid-template-areas:
+        "cover head act"
+        "cover desc act";
+      column-gap: 40px;
+      padding: 32px;
+    }
+    .doc__actions {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      align-self: start;
+    }
+    .doc__actions :global(.btn) {
+      width: 100%;
     }
   }
 </style>

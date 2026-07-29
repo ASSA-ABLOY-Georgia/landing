@@ -145,8 +145,10 @@ const pathname = Astro.url.pathname;
     // Looked up per toggle: this script runs inside <header>, before the parser
     // has reached either landmark.
     function setInert(open) {
+      // `main-region` is the <main> landmark itself; `main-content` is the
+      // skip link's focusable wrapper inside it (BaseLayout).
       var covered = [
-        document.getElementById("main-content"),
+        document.getElementById("main-region"),
         document.getElementById("site-footer"),
       ];
       for (var i = 0; i < covered.length; i++) {

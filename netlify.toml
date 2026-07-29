@@ -45,8 +45,8 @@
   [headers.values]
     Cache-Control = "public, max-age=604800, must-revalidate"
 
-# The catalogue PDF has a deliberately stable, unfingerprinted URL (PLAN §6), so it
-# must stay revalidatable — a future edition reuses this exact path.
+# The catalogue files have deliberately stable, unfingerprinted URLs (PLAN §6), so they
+# must stay revalidatable — a future edition reuses the exact same path.
 [[headers]]
   for = "/catalogue/*"
   [headers.values]

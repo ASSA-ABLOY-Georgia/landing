@@ -32,7 +32,10 @@ plus `/contact/thanks` and a `404`.
 
 ## Notes
 
-- The product catalogue PDF lives at `public/catalogue/assa-abloy-catalogue-2024.pdf` and is
-  linked (view in new tab / download), never embedded.
+- The downloadable documents live in `public/catalogue/` on stable, unfingerprinted URLs —
+  `assa-abloy-catalogue-2024.pdf`, `assa-abloy-doors-technical-catalog.pdf` and
+  `assa-abloy-doors-presentation.pptx`. `/products` lists them (view in new tab / download);
+  nothing is ever embedded, and the `.pptx` offers download only. Copy and metadata live in
+  `src/data/documents.ts`.
 - The contact form posts to **Web3Forms**; it needs the client's real access key before it can
   deliver mail (placeholder `YOUR_ACCESS_KEY_HERE` until then). See `PLAN.md` §9 for open items.
