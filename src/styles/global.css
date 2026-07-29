@@ -135,7 +135,7 @@
   }
   @media (min-width: 1280px) {
     .container-boxed {
-      max-width: calc(1248px + 12rem);
+      max-width: calc(1520px + 12rem);
       padding-inline: 6rem;
     }
   }

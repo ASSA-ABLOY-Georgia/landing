@@ -20,8 +20,7 @@
  * **footer-proximity hold** — the bar is held hidden while the footer's pill nav
  * is near the top of the viewport, so the two navs are never on screen together.
  */
-import { Image } from "astro:assets";
-import logoDeepBlue from "../assets/logo-deep-blue.png";
+import Wordmark from "../assets/logo-wordmark.svg";
 import Icon from "./Icon.astro";
 import { contact, isCurrentPath, navItems, ui } from "../data/site";
 
@@ -58,20 +57,12 @@ const pathname = Astro.url.pathname;
 
       <a class="header__brand" href="/">
         {
-          /* Up to 36px tall (231w — the ceiling of the mobile clamp below) under
-            768px, 52px (333w) above. `densities` emits viewport-blind 1x/2x
-            descriptors, so a DPR-2 phone took the 666w desktop asset for a 231px
-            box; `widths` + `sizes` lets the browser weigh viewport AND DPR. The
-            231px hint is the mark at the widest phone, so it can only
-            over-serve. */
+          /* The link's only content, so the mark carries its accessible name —
+            `role="img"` + `aria-label`, not a decorative `aria-hidden`. Colour
+            comes from the `color` on `.header__brand` (the asset is authored
+            `fill="currentColor"`), so there is no deep-blue logo file. */
         }
-        <Image
-          src={logoDeepBlue}
-          alt="ASSA ABLOY Georgia"
-          widths={[231, 333, 462, 666]}
-          sizes="(min-width: 768px) 333px, 231px"
-          loading="eager"
-        />
+        <Wordmark role="img" aria-label="ASSA ABLOY Georgia" focusable="false" />
       </a>
 
       <ul class="header__utility" role="list">
@@ -226,13 +217,22 @@ const pathname = Astro.url.pathname;
     /* The mark is never what gives way — as a shrinkable item it was squeezed by
        the toggle's wider open-state label on any phone under ~408px. */
     flex-shrink: 0;
+    /* Paints the wordmark: the SVG is `fill="currentColor"`. */
+    color: var(--color-deep-blue);
   }
-  .header__brand :global(img) {
-    /* Fluid to its full 36px at ~468px: a fixed 36px (231w) leaves a phone too
-       little room for the toggle beside it. Size follows the SCREEN, never the
-       menu's state. `max-width: none` drops preflight's `max-width: 100%`, which
-       against a fixed height squashes the mark instead of scaling it. */
-    height: clamp(28px, 7.7vw, 36px);
+  .header__brand :global(svg) {
+    /* Fluid to its full 36px at ~545px: a fixed 36px leaves a phone too little
+       room for the toggle beside it. Size follows the SCREEN, never the menu's
+       state. `max-width: none` drops preflight's `max-width: 100%`, which
+       against a fixed height squashes the mark instead of scaling it.
+       These are INK heights — the vector is trimmed to the glyphs where the
+       retired PNGs carried a 12px transparent pad, so the same number now draws
+       ~15% more mark (DECISIONS D9.1). Retuned from `clamp(28px, 7.7vw, 36px)`
+       for that: the binding case is 360–470px, where the toggle is at its full
+       113px labelled width and the old numbers pushed the mark flush into the
+       24px gutter. The rendered size on a phone is within 3% of the PNG's. */
+    display: block;
+    height: clamp(23px, 6.6vw, 36px);
     width: auto;
     max-width: none;
   }
@@ -494,8 +494,8 @@ const pathname = Astro.url.pathname;
       position: sticky;
       top: calc(-1 * var(--header-sticky-offset));
     }
-    .header__brand :global(img) {
-      height: 52px;
+    .header__brand :global(svg) {
+      height: 20px;
     }
     .header__utility {
       display: flex;

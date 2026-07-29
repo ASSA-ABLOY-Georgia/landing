@@ -18,9 +18,7 @@
  * sentinel is what makes that an IntersectionObserver trigger instead of
  * `scrollY` arithmetic — this footer is ~90vh and its height varies.
  */
-import { Image } from "astro:assets";
-import logoCyan from "../assets/logo-cyan.png";
-import logoWhite from "../assets/logo-white.png";
+import Wordmark from "../assets/logo-wordmark.svg";
 import Button from "./Button.astro";
 import Icon from "./Icon.astro";
 import { contact, footer, navItems, ui } from "../data/site";
@@ -53,11 +51,11 @@ import { contact, footer, navItems, ui } from "../data/site";
     <!-- 3 — utility row -->
     <div class="site-footer__utility">
       {
-        /* alt is the wordmark's literal content ("ASSA ABLOY"), not the site name —
-          the org's full name is carried by the legal bar below. */
+        /* The label is the wordmark's literal content ("ASSA ABLOY"), not the site
+          name — the org's full name is carried by the legal bar below. */
       }
       <div class="site-footer__mark">
-        <Image src={logoWhite} alt="ASSA ABLOY" width={178} densities={[1, 2]} />
+        <Wordmark role="img" aria-label="ASSA ABLOY" focusable="false" />
       </div>
       <ul class="site-footer__contact" role="list" aria-label={ui.contactLabel}>
         <li>
@@ -81,7 +79,11 @@ import { contact, footer, navItems, ui } from "../data/site";
 
     <!-- 6 — giant cyan wordmark: the single most cyan moment on the site -->
     <div class="site-footer__wordmark">
-      <Image src={logoCyan} alt="" widths={[640, 1183]} sizes="(min-width: 1440px) 1248px, 100vw" />
+      {
+        /* Purely graphic — the same two words are already announced by the mark
+          in layer 3, so this one is hidden from the a11y tree. */
+      }
+      <Wordmark aria-hidden="true" focusable="false" />
     </div>
 
     <!-- 7 — tagline -->
@@ -138,10 +140,13 @@ import { contact, footer, navItems, ui } from "../data/site";
     margin-bottom: auto;
     padding-bottom: 64px;
   }
-  .site-footer__mark :global(img) {
+  .site-footer__mark :global(svg) {
     display: block;
     width: 178px;
     height: auto;
+    /* Paints the wordmark: the SVG is `fill="currentColor"`, so this instance and
+       the cyan band below are the same asset at two colours. */
+    color: #ffffff;
   }
   .site-footer__contact {
     display: flex;
@@ -183,10 +188,11 @@ import { contact, footer, navItems, ui } from "../data/site";
   .site-footer__wordmark {
     margin-top: 48px;
   }
-  .site-footer__wordmark :global(img) {
+  .site-footer__wordmark :global(svg) {
     display: block;
     width: 100%;
     height: auto;
+    color: var(--color-cyan);
   }
 
   /* 7 — tagline */
