@@ -24,8 +24,8 @@ export const navItems: NavItem[] = [
 export const contact = {
   phone: "+995 32 2 00 00 00",
   phoneHref: "tel:+995322000000",
-  email: "info@assaabloy.ge",
-  emailHref: "mailto:info@assaabloy.ge",
+  email: "info@assa-abloy.ge",
+  emailHref: "mailto:info@assa-abloy.ge",
 };
 
 /** CONTENT.md → Global → footer. The legal line is still a draft. */
