@@ -20,6 +20,20 @@ plus `/contact/thanks` and a `404`.
 | `pnpm build`     | Build the static site to `./dist/`           |
 | `pnpm preview`   | Preview the production build locally         |
 | `pnpm format`    | Prettier-format app code (never the docs)    |
+| `pnpm exec wrangler dev` | Serve `./dist/` exactly as Cloudflare will (headers, 404, trailing slashes) — run `pnpm build` first |
+
+## Deployment
+
+Hosted on **Cloudflare Workers (static assets)**, DNS on Cloudflare. Pushes to `main` deploy via
+Workers Builds (build `pnpm build`, deploy `pnpm exec wrangler deploy`).
+
+- `wrangler.jsonc` — asset directory, 404 handling, trailing-slash handling, `assa-abloy.ge` custom domain.
+- `public/_headers` — `Cache-Control` rules (copied into `dist/` by the build).
+- `.node-version` — Node for the build image; pnpm comes from the `packageManager` pin.
+- `www` → apex redirect and "Always Use HTTPS" are Cloudflare dashboard settings.
+- ⚠ Cloudflare rejects any single file over **25 MiB**; `assa-abloy-catalogue-2024.pdf` is 23.9 MiB.
+
+See `MIGRATION.md` for the move from Netlify and the DNS / Google Workspace email records.
 
 ## Project docs
 
@@ -37,5 +51,5 @@ plus `/contact/thanks` and a `404`.
   `assa-abloy-doors-presentation.pptx`. `/products` lists them (view in new tab / download);
   nothing is ever embedded, and the `.pptx` offers download only. Copy and metadata live in
   `src/data/documents.ts`.
-- The contact form posts to **Web3Forms**; it needs the client's real access key before it can
-  deliver mail (placeholder `YOUR_ACCESS_KEY_HERE` until then). See `PLAN.md` §9 for open items.
+- The contact form posts to **Web3Forms** (access key in `src/components/ContactForm.astro`) and
+  redirects to `/contact/thanks/` on the production origin. See `PLAN.md` §9 for open items.

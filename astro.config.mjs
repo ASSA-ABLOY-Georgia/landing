@@ -6,21 +6,15 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  // Canonical origin. Feeds canonical tags, the sitemap's absolute URLs, and the
-  // Web3Forms `redirect` field in ContactForm.astro — so a hardcoded placeholder would
-  // bounce form submissions from a *.netlify.app deploy to a domain that does not
-  // resolve yet.
+  // Canonical origin. Feeds canonical tags, the sitemap's absolute URLs, robots.txt's
+  // `Sitemap:` line, and the Web3Forms `redirect` field in ContactForm.astro.
   //
-  // ⚠ The CONTEXT gate is load-bearing. DEPLOY_PRIME_URL is set on *every* Netlify
-  // deploy including production, where it is the deploy host (`main--site.netlify.app`),
-  // NOT the custom domain — trusting it there would self-canonicalise the live site onto
-  // netlify.app and send form submissions there too. Only URL is documented as "the main
-  // address to your site … or your own custom domain". Locally all three are unset and we
-  // fall through to the placeholder.
-  site:
-    (process.env.CONTEXT === "production" ? process.env.URL : process.env.DEPLOY_PRIME_URL) ||
-    process.env.URL ||
-    "https://assa-abloy.ge",
+  // Hardcoded on purpose. Cloudflare Workers Builds exposes no deploy-URL variable, and
+  // reading a generic env var (as the Netlify setup did with URL / DEPLOY_PRIME_URL)
+  // would let a stray `URL` hijack the canonicals. Preview deploys on *.workers.dev
+  // therefore canonicalise to production, which is what we want for SEO; a test
+  // submission of the contact form there lands on the live /contact/thanks/.
+  site: "https://assa-abloy.ge",
 
   // Single family: Noto Sans Georgian (variable 400–800), georgian + latin subsets, via
   // the Astro Fonts API + Fontsource provider. Exposed as --font-georgian, consumed by

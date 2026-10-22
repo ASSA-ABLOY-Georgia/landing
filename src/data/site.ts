@@ -15,9 +15,9 @@ export interface NavItem {
 /** CONTENT.md → Global → nav labels. Slugs stay Latin. */
 export const navItems: NavItem[] = [
   { label: "მთავარი", href: "/" },
-  { label: "ჩვენს შესახებ", href: "/about" },
-  { label: "პროდუქტები", href: "/products" },
-  { label: "კონტაქტი", href: "/contact" },
+  { label: "ჩვენს შესახებ", href: "/about/" },
+  { label: "პროდუქტები", href: "/products/" },
+  { label: "კონტაქტი", href: "/contact/" },
 ];
 
 /** Placeholders, at the client's request. */

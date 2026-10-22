@@ -1,0 +1,33 @@
+// Cloudflare Workers static-assets deployment. Replaces netlify.toml (see MIGRATION.md).
+//
+// Static output only — no adapter and no `main` Worker script: Cloudflare serves ./dist directly.
+// Build settings live in the Workers Builds dashboard (build `pnpm build`, deploy
+// `pnpm exec wrangler deploy`); Node comes from .node-version, pnpm from `packageManager`.
+// Cache-Control rules live in public/_headers, which Astro copies into dist/.
+{
+  "name": "assa-abloy-ge",
+
+  // Must not be newer than the installed workerd supports: "2026-10-22" was rejected as
+  // "in the future and unsupported" by wrangler 4.151.3 / workerd 1.20261019 on that date.
+  "compatibility_date": "2026-10-15",
+
+  "assets": {
+    "directory": "./dist",
+    // Unmatched paths get dist/404.html with a real 404 status (Netlify did this implicitly).
+    "not_found_handling": "404-page",
+    // Matches Astro's directory output (about/index.html): /about redirects to /about/, the form
+    // the canonicals and sitemap use. Spelled out although it is the default, because the
+    // canonical URLs depend on it.
+    "html_handling": "auto-trailing-slash",
+  },
+
+  // ⚠ wrangler deploy creates this custom domain, and Cloudflare only allows that once the
+  // assa-abloy.ge zone is Active. Do not connect the repo to Workers Builds before then.
+  // www → apex is a dashboard Redirect Rule, not configured here.
+  "routes": [{ "pattern": "assa-abloy.ge", "custom_domain": true }],
+
+  // Keep the *.workers.dev URL and per-version preview URLs for testing. Their pages
+  // canonicalise to https://assa-abloy.ge, so they don't compete with it in search.
+  "workers_dev": true,
+  "preview_urls": true,
+}

@@ -1,0 +1,28 @@
+# Cloudflare static-assets headers. Ported 1:1 from the old netlify.toml [[headers]] rules.
+# Astro copies this file into dist/; Cloudflare reads it at deploy time and never serves it.
+#
+# The rules are deliberately NON-OVERLAPPING, by file extension rather than by directory.
+# Cloudflare applies EVERY rule that matches a path and comma-joins a header set by more than
+# one ("max-age=31536000, immutable, max-age=604800, …"), so an overlap would produce a
+# contradictory Cache-Control. "*" is greedy and crosses "/". Paths matching no rule keep the
+# default `public, max-age=0, must-revalidate`.
+
+# Vite content-hashes these (e.g. BaseLayout.Cf-ABytL.css) — the bytes cannot change without the
+# filename changing, so they are safe to pin forever.
+/_astro/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/_astro/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# ⚠ NOT immutable. Astro's Fonts API names these from a hash of the *source URL*, not of the file
+# contents, and that URL is `…/noto-sans-georgian:vf@latest/…woff2` — a mutable tag. A Fontsource
+# release can change these bytes under the same filename; a year-long immutable cache would strand
+# returning visitors on a stale font (tofu on a lang="ka" site). A week, revalidatable, costs one 304.
+/_astro/fonts/*
+  Cache-Control: public, max-age=604800, must-revalidate
+
+# The catalogue files have deliberately stable, unfingerprinted URLs (PLAN §6), so they must stay
+# revalidatable — a future edition reuses the exact same path.
+/catalogue/*
+  Cache-Control: public, max-age=86400, must-revalidate

@@ -39,7 +39,7 @@ const copy = {
   {/* 1 — hero: white, two-column */}
   <PageHero title="ვქმნით უსაფრთხო და თავისუფალ წვდომას სამყაროში">
     <p>{copy.heroIntro}</p>
-    <Button href="/products">ჩვენი პროდუქტები</Button>
+    <Button href="/products/">ჩვენი პროდუქტები</Button>
   </PageHero>
 
   {
@@ -51,8 +51,8 @@ const copy = {
     <div class="container-boxed display-band__inner">
       <p class="display-band__line">უსაფრთხო და ღია სამყარო</p>
       <div class="display-band__ctas">
-        <Button variant="white" href="/contact">დაგვიკავშირდით</Button>
-        <Button variant="white" href="/about">ჩვენს შესახებ</Button>
+        <Button variant="white" href="/contact/">დაგვიკავშირდით</Button>
+        <Button variant="white" href="/about/">ჩვენს შესახებ</Button>
       </div>
     </div>
   </section>
@@ -67,7 +67,7 @@ const copy = {
     <div class="container-boxed" data-reveal>
       <SectionHeading eyebrow="ჩვენს შესახებ" title="წვდომის გადაწყვეტილებების მსოფლიო ლიდერი" />
       <p class="band__body measure">{copy.intro}</p>
-      <Button variant="white" href="/about">ჩვენს შესახებ</Button>
+      <Button variant="white" href="/about/">ჩვენს შესახებ</Button>
     </div>
   </section>
 
@@ -79,7 +79,7 @@ const copy = {
         {
           solutions.map((solution) => (
             <li>
-              <Card level="h3" title={solution.title} href="/products" icon={solution.icon}>
+              <Card level="h3" title={solution.title} href="/products/" icon={solution.icon}>
                 {solution.body}
               </Card>
             </li>
@@ -125,7 +125,7 @@ const copy = {
     <div class="container-boxed" data-reveal>
       <SectionHeading eyebrow="ინოვაცია" title="მომავლის უსაფრთხოება იწყება დღეს" />
       <p class="band__body measure">{copy.innovation}</p>
-      <Button href="/contact">დაგვიკავშირდით</Button>
+      <Button href="/contact/">დაგვიკავშირდით</Button>
     </div>
   </section>
 </BaseLayout>

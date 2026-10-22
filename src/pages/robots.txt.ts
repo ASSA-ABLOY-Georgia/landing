@@ -1,11 +1,10 @@
 /**
  * robots.txt — generated rather than served from public/.
  *
- * The `Sitemap:` line must be an absolute URL, and `site` in astro.config.mjs is now
- * environment-dependent on Netlify. A static public/robots.txt would therefore drift:
- * it would advertise a sitemap on a *different host* than the one @astrojs/sitemap
- * actually emits, which crawlers discard as cross-host. Deriving both from the same
- * `site` value makes that divergence impossible.
+ * The `Sitemap:` line must be an absolute URL on the same host as the sitemap that
+ * @astrojs/sitemap emits — crawlers discard a cross-host one. A static public/robots.txt
+ * would duplicate the origin by hand and drift the next time `site` in astro.config.mjs
+ * changes. Deriving both from the same `site` value makes that divergence impossible.
  */
 import type { APIRoute } from "astro";
 
