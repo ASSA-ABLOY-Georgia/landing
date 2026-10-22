@@ -461,7 +461,10 @@ deploy, and a deploy with the `routes` entry fails on a Pending zone.
    `ASSA-ABLOY-Georgia/landing`, branch `main`.
    - Build command: `pnpm build`
    - Deploy command: `pnpm exec wrangler deploy`
-   - Non-production branch deploy command: `pnpm exec wrangler versions upload` (gives preview URLs)
+   - **Preview command** (runs for pushes to branches other than `main`):
+     `pnpm exec wrangler versions upload` — uploads a version with its own preview URL without
+     touching production. (Cloudflare's default, `npx wrangler preview`, is an open-beta feature.)
+   - **Worker name must be exactly `assa-abloy-ge`** (the `name` in `wrangler.jsonc`), or the build fails.
    - Node comes from `.node-version`. If the build log shows the wrong pnpm version, add the
      build variable `PNPM_VERSION` = `10.34.5`.
 2. **Apex domain:** the first deploy creates the `assa-abloy.ge` custom domain from the `routes`
